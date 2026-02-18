@@ -111,7 +111,7 @@
                 max-width: 350px;
                 max-height: 350px;
             }
-            
+
             .close-popup {
                 width: 40px;
                 height: 40px;
@@ -126,7 +126,7 @@
                 max-width: 280px;
                 max-height: 280px;
             }
-            
+
             .close-popup {
                 width: 35px;
                 height: 35px;
@@ -220,7 +220,6 @@
             height: 280px;
             object-fit: contain;
             border-radius: 10px;
-            /* УБРАНА ТЕНЬ */
             margin: 0 auto;
             display: block;
         }
@@ -696,6 +695,110 @@
             background-color: #7a4f29;
         }
 
+        /* ========== НОВАЯ ВКЛАДКА ОБЪЯВЛЕНИЯ ========== */
+        .announcement-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .announcement-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .announcement-panel {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 85vh;
+            max-height: 85vh;
+            background-color: white;
+            border-radius: 20px 20px 0 0;
+            box-shadow: 0 -5px 25px rgba(0, 0, 0, 0.2);
+            z-index: 1001;
+            transform: translateY(100%);
+            transition: transform 0.4s ease;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .announcement-panel.active {
+            transform: translateY(0);
+        }
+
+        .announcement-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 25px;
+            background-color: var(--main-color);
+            border-bottom: 2px solid var(--dark-color);
+        }
+
+        .announcement-header h2 {
+            color: var(--dark-color);
+            font-size: 2.2rem;
+            font-family: var(--handwritten-font);
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .close-announcement {
+            background: none;
+            border: none;
+            font-size: 1.8rem;
+            cursor: pointer;
+            color: var(--dark-color);
+            padding: 5px;
+        }
+
+        .announcement-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 25px;
+        }
+
+        .announcement-card {
+            background-color: var(--main-color);
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: var(--shadow);
+            border: 2px solid var(--dark-color);
+        }
+
+        .announcement-title {
+            font-size: 1.8rem;
+            color: var(--dark-color);
+            font-family: var(--handwritten-font);
+            font-weight: 700;
+            margin-bottom: 15px;
+            border-bottom: 1px dashed var(--dark-color);
+            padding-bottom: 10px;
+        }
+
+        .announcement-text {
+            font-size: 1.2rem;
+            line-height: 1.6;
+            color: var(--text-color);
+        }
+
+        .announcement-date {
+            margin-top: 20px;
+            text-align: right;
+            font-style: italic;
+            color: #666;
+        }
+
         /* ========== ОСНОВНЫЕ СТИЛИ ========== */
         * {
             margin: 0;
@@ -726,7 +829,7 @@
             padding: 0 20px;
         }
 
-        /* Шапка сайта - ОБНОВЛЕННАЯ С РАСПОЛОЖЕНИЕМ */
+        /* Шапка сайта - ОБНОВЛЕННАЯ С РАСКРЫВАЮЩИМСЯ МЕНЮ */
         header {
             background-color: var(--main-color);
             padding: 10px 0;
@@ -746,13 +849,12 @@
             display: flex;
             align-items: center;
             gap: 15px;
-            order: 3; /* ПЕРЕМЕЩАЕМ В ПРАВУЮ СТОРОНУ */
+            order: 2;
         }
 
         .logo-image {
             height: 60px;
             width: 60px;
-            /* УБРАЛИ КОРИЧНЕВЫЙ ФОН */
             background-color: transparent;
             border-radius: 50%;
             display: flex;
@@ -787,11 +889,15 @@
         .header-buttons {
             display: flex;
             gap: 20px;
-            order: 1; /* КНОПКИ СЛЕВА */
+            order: 1;
         }
 
-        /* СТИЛИ ДЛЯ КНОПОК С ИКОНКАМИ */
-        .header-icon-btn {
+        /* НОВОЕ РАСКРЫВАЮЩЕЕСЯ МЕНЮ */
+        .hamburger-menu {
+            position: relative;
+        }
+
+        .hamburger-btn {
             background-color: var(--dark-color);
             color: white;
             border: none;
@@ -804,35 +910,65 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.3rem;
+            font-size: 1.5rem;
             position: relative;
         }
 
-        .header-icon-btn:hover {
+        .hamburger-btn:hover {
             background-color: #7a4f29;
             transform: translateY(-2px);
         }
 
-        .header-icon-btn .btn-tooltip {
+        .hamburger-dropdown {
             position: absolute;
-            bottom: -40px;
-            left: 50%;
-            transform: translateX(-50%);
-            background-color: var(--dark-color);
-            color: white;
-            padding: 5px 10px;
-            border-radius: 5px;
-            font-size: 0.8rem;
-            white-space: nowrap;
+            top: 60px;
+            left: 0;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            width: 250px;
+            z-index: 1000;
             opacity: 0;
             visibility: hidden;
-            transition: opacity 0.3s ease;
-            z-index: 10;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+            overflow: hidden;
         }
 
-        .header-icon-btn:hover .btn-tooltip {
+        .hamburger-dropdown.active {
             opacity: 1;
             visibility: visible;
+            transform: translateY(0);
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px 20px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            color: var(--text-color);
+        }
+
+        .dropdown-item:last-child {
+            border-bottom: none;
+        }
+
+        .dropdown-item:hover {
+            background-color: var(--main-color);
+        }
+
+        .dropdown-item i {
+            font-size: 1.3rem;
+            color: var(--dark-color);
+            width: 25px;
+            text-align: center;
+        }
+
+        .dropdown-item span {
+            font-weight: 600;
         }
 
         .cart-icon {
@@ -840,7 +976,8 @@
             cursor: pointer;
             font-size: 1.5rem;
             color: var(--dark-color);
-            order: 2; /* КОРЗИНА ПОСЛЕ КНОПОК */
+            order: 3;
+            margin-left: auto;
         }
 
         .cart-count {
@@ -1788,7 +1925,6 @@
         .footer-logo {
             height: 80px;
             width: 80px;
-            /* УБРАЛИ БЕЖЕВЫЙ ФОН */
             background-color: transparent;
             border-radius: 50%;
             display: flex;
@@ -1861,54 +1997,45 @@
                 width: 150px;
                 height: 150px;
             }
-            
+
             .banner-carousel {
                 height: 40vh;
                 min-height: 250px;
                 max-height: 350px;
             }
-            
+
             header {
                 padding: 8px 0;
             }
-            
+
             .header-content {
                 flex-wrap: wrap;
                 gap: 10px;
             }
-            
+
             .logo-text {
                 display: none;
             }
-            
+
             .logo-image {
                 height: 50px;
                 width: 50px;
             }
-            
-            .header-buttons {
-                order: 1;
-                flex: 1;
-                justify-content: flex-start;
-            }
-            
-            .header-icon-btn {
+
+            .hamburger-btn {
                 width: 45px;
                 height: 45px;
-                font-size: 1.2rem;
+                font-size: 1.3rem;
             }
-            
+
+            .hamburger-dropdown {
+                width: 220px;
+            }
+
             .cart-icon {
-                order: 2;
-                flex: 0;
+                font-size: 1.3rem;
             }
-            
-            .logo {
-                order: 3;
-                flex: 0;
-                margin-left: auto;
-            }
-            
+
             .cart-count {
                 width: 20px;
                 height: 20px;
@@ -1935,108 +2062,110 @@
             .menu-header h2 {
                 font-size: 2.5rem;
             }
-            
+
             .about-section h2,
             .features-section h2,
             .reviews-section h2,
             .contact-section h2 {
                 font-size: 2.2rem;
             }
-            
+
             .section-title {
                 font-size: 2rem;
             }
-            
+
             .categories {
                 flex-direction: column;
                 align-items: center;
             }
-            
+
             .category-btn {
                 width: 200px;
             }
-            
+
             .features-grid, .reviews-grid, .menu-grid {
                 grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
             }
-            
+
             .cart-panel,
             .orders-panel,
-            .bonus-panel {
+            .bonus-panel,
+            .announcement-panel {
                 height: 80vh;
                 max-height: 80vh;
             }
-            
+
             .cart-header h2,
             .orders-header h2,
-            .bonus-header h2 {
+            .bonus-header h2,
+            .announcement-header h2 {
                 font-size: 1.8rem;
             }
-            
+
             .modal,
             .rating-modal {
                 width: 95%;
                 padding: 20px;
             }
-            
+
             .delivery-options {
                 flex-direction: column;
             }
-            
+
             .about-section, .contact-section {
                 padding: 30px 20px;
             }
-            
+
             .qr-code-image {
                 width: 120px;
                 height: 120px;
             }
-            
+
             .bonus-image {
                 width: 200px;
                 height: 200px;
             }
-            
+
             .bonus-card-button {
                 padding: 12px;
             }
-            
+
             .bonus-card-image {
                 width: 50px;
                 height: 50px;
             }
-            
+
             .bonus-card-text h4 {
                 font-size: 1rem;
             }
-            
+
             .bonus-card-text p {
                 font-size: 0.85rem;
             }
-            
+
             .bonus-balance-info {
                 margin-left: 65px;
             }
-            
+
             .bonus-warning {
                 margin-left: 65px;
             }
-            
+
             .footer-disclaimer {
                 font-size: 0.85rem;
                 padding: 15px 10px 0;
             }
-            
+
             .itd-button {
                 width: 45px;
                 height: 45px;
             }
-            
+
             .delete-order-btn {
                 padding: 6px 12px;
                 font-size: 0.85rem;
             }
-            
+
             .bonus-balance-container .ahmedik-img {
                 width: 30px;
                 height: 30px;
@@ -2048,98 +2177,106 @@
                 width: 120px;
                 height: 120px;
             }
-            
+
             .banner-carousel {
                 height: 35vh;
                 min-height: 200px;
                 max-height: 280px;
             }
-            
+
             .menu-grid, .features-grid, .reviews-grid {
                 grid-template-columns: 1fr;
             }
-            
+
             .item-image {
                 height: 180px;
             }
-            
+
             .logo-image {
                 height: 45px;
                 width: 45px;
             }
-            
-            .header-icon-btn {
+
+            .hamburger-btn {
                 width: 40px;
                 height: 40px;
-                font-size: 1.1rem;
+                font-size: 1.2rem;
             }
-            
+
+            .hamburger-dropdown {
+                width: 200px;
+            }
+
             .menu-header h2 {
                 font-size: 2rem;
             }
-            
+
             .about-section h2,
             .features-section h2,
             .reviews-section h2,
             .contact-section h2 {
                 font-size: 1.8rem;
             }
-            
+
             .section-title {
                 font-size: 1.6rem;
             }
-            
+
             .footer-logo {
                 height: 70px;
                 width: 70px;
                 font-size: 1.8rem;
             }
-            
+
             .cart-panel,
             .orders-panel,
-            .bonus-panel {
+            .bonus-panel,
+            .announcement-panel {
                 height: 75vh;
                 max-height: 75vh;
             }
-            
+
             .cart-header,
             .orders-header,
-            .bonus-header {
+            .bonus-header,
+            .announcement-header {
                 padding: 15px 20px;
             }
-            
+
             .cart-content,
             .orders-content,
-            .bonus-content {
+            .bonus-content,
+            .announcement-content {
                 padding: 0 20px;
             }
-            
+
             .cart-footer {
                 padding: 15px 20px;
             }
-            
+
             .cart-header h2,
             .orders-header h2,
-            .bonus-header h2 {
+            .bonus-header h2,
+            .announcement-header h2 {
                 font-size: 1.6rem;
             }
-            
+
             .cart-notification {
                 padding: 12px 20px;
             }
-            
+
             .notification-icon {
                 font-size: 1.3rem;
             }
-            
+
             .notification-content h4 {
                 font-size: 1rem;
             }
-            
+
             .notification-content p {
                 font-size: 0.85rem;
             }
-            
+
             .scroll-to-top {
                 bottom: 15px;
                 right: 15px;
@@ -2147,87 +2284,88 @@
                 height: 50px;
                 font-size: 1.5rem;
             }
-            
+
             .qr-code-image {
                 width: 100px;
                 height: 100px;
             }
-            
+
             .bonus-image {
                 width: 180px;
                 height: 180px;
             }
-            
+
             .bonus-card-button {
                 flex-direction: column;
                 text-align: center;
                 gap: 10px;
             }
-            
+
             .bonus-card-image {
                 width: 60px;
                 height: 60px;
             }
-            
+
             .bonus-balance-info {
                 margin-left: 0;
                 justify-content: center;
             }
-            
+
             .bonus-warning {
                 margin-left: 0;
                 text-align: center;
             }
-            
+
             .rating-star {
                 font-size: 2rem;
             }
-            
+
             .itd-button {
                 width: 40px;
                 height: 40px;
             }
-            
+
             .delete-order-btn {
                 padding: 5px 10px;
                 font-size: 0.8rem;
             }
-            
+
             .bonus-balance-container .ahmedik-img {
                 width: 25px;
                 height: 25px;
             }
         }
-        
+
         @media (max-width: 360px) {
             .loading-gif {
                 width: 100px;
                 height: 100px;
             }
-            
+
             .banner-carousel {
                 height: 30vh;
                 min-height: 180px;
                 max-height: 230px;
             }
-            
-            .header-buttons {
-                gap: 5px;
-            }
-            
-            .header-icon-btn {
+
+            .hamburger-btn {
                 width: 38px;
                 height: 38px;
-                font-size: 1rem;
+                font-size: 1.1rem;
             }
-            
+
+            .hamburger-dropdown {
+                width: 180px;
+            }
+
             .cart-panel,
             .orders-panel,
-            .bonus-panel {
+            .bonus-panel,
+            .announcement-panel {
                 height: 70vh;
                 max-height: 70vh;
             }
-            
+
             .scroll-to-top {
                 bottom: 10px;
                 right: 10px;
@@ -2235,39 +2373,39 @@
                 height: 45px;
                 font-size: 1.3rem;
             }
-            
+
             .qr-code-image {
                 width: 90px;
                 height: 90px;
             }
-            
+
             .bonus-image {
                 width: 160px;
                 height: 160px;
             }
-            
+
             .itd-button {
                 width: 35px;
                 height: 35px;
             }
-            
+
             .delete-order-btn {
                 padding: 4px 8px;
                 font-size: 0.75rem;
             }
-            
+
             .bonus-balance-container .ahmedik-img {
                 width: 20px;
                 height: 20px;
             }
         }
-        
+
         @media (max-height: 500px) and (orientation: landscape) {
             .loading-gif {
                 width: 120px;
                 height: 120px;
             }
-            
+
             .banner-carousel {
                 height: 70vh;
                 min-height: 250px;
@@ -2281,7 +2419,6 @@
         <div class="popup-container">
             <button class="close-popup" id="closePopup">&times;</button>
             <a href="https://итд.com/uahmeda52" target="_blank" id="popupLink">
-                <!-- ИЗМЕНЕН ПУТЬ К ИЗОБРАЖЕНИЮ -->
                 <img src="img/img/popup.png" alt="Специальное предложение" class="popup-image" id="popupImage">
             </a>
         </div>
@@ -2335,32 +2472,38 @@
     <header>
         <div class="container">
             <div class="header-content">
-                <div class="header-buttons">
-                    <!-- Кнопка Меню с иконкой блокнота -->
-                    <button class="header-icon-btn" id="menuBtn" title="Меню">
-                        <i class="fas fa-book"></i>
-                        <span class="btn-tooltip">Меню</span>
+                <!-- РАСКРЫВАЮЩЕЕСЯ МЕНЮ -->
+                <div class="hamburger-menu">
+                    <button class="hamburger-btn" id="hamburgerBtn">
+                        <i class="fas fa-bars"></i>
                     </button>
-                    <!-- Кнопка Бонусная карта с иконкой процента -->
-                    <button class="header-icon-btn" id="bonusBtn" title="Бонусная карта">
-                        <i class="fas fa-percent"></i>
-                        <span class="btn-tooltip">Бонусная карта</span>
-                    </button>
-                    <!-- Кнопка Недавние заказы с иконкой часов -->
-                    <button class="header-icon-btn" id="ordersBtn" title="Недавние заказы">
-                        <i class="fas fa-clock"></i>
-                        <span class="btn-tooltip">Недавние заказы</span>
-                    </button>
+                    <div class="hamburger-dropdown" id="hamburgerDropdown">
+                        <div class="dropdown-item" id="dropdownMenuBtn">
+                            <i class="fas fa-book"></i>
+                            <span>Меню</span>
+                        </div>
+                        <div class="dropdown-item" id="dropdownBonusBtn">
+                            <i class="fas fa-percent"></i>
+                            <span>Бонусная карта</span>
+                        </div>
+                        <div class="dropdown-item" id="dropdownOrdersBtn">
+                            <i class="fas fa-clock"></i>
+                            <span>Недавние заказы</span>
+                        </div>
+                        <div class="dropdown-item" id="dropdownAnnouncementBtn">
+                            <i class="fas fa-bullhorn"></i>
+                            <span>Объявления</span>
+                        </div>
+                    </div>
                 </div>
-                
+
                 <div class="cart-icon" id="cartIcon">
                     <i class="fas fa-shopping-cart"></i>
                     <div class="cart-count">0</div>
                 </div>
-                
+
                 <div class="logo">
                     <div class="logo-image">
-                        <!-- ИЗМЕНЕНО НАЗВАНИЕ ЛОГОТИПА -->
                         <img src="img/img/logo.png" alt="Логотип Шашлычной 'У Ахмеда'">
                     </div>
                     <div class="logo-text">
@@ -2381,31 +2524,30 @@
         </div>
         <div class="bonus-content">
             <div class="bonus-image-container">
-                <!-- УВЕЛИЧЕНА КАРТИНКА И УБРАНА ТЕНЬ -->
                 <img src="img/img/bonus.png" alt="Бонусная карта У Ахмеда" class="bonus-image" id="bonusImage">
             </div>
             <div class="bonus-description">
                 Бонусная карта "У Ахмеда" позволит вам жрать еще выгоднее! Оплачивайте часть покупки с помощью ахмедиков и получайте неимоверные скидки
             </div>
-            
+
             <!-- БЛОК С БАЛАНСОМ И КАРТИНКАМИ -->
             <div class="bonus-balance-container" id="bonusBalanceContainer">
                 <!-- Картинки ахмедиков будут добавлены через JavaScript -->
             </div>
-            
+
             <div class="bonus-tabs">
                 <div class="bonus-tab active" data-tab="get">Как получить ахмедики</div>
                 <div class="bonus-tab" data-tab="spend">Как потратить ахмедики</div>
             </div>
-            
+
             <div class="bonus-tab-content active" id="getTab">
                 Используйте карту при оплате и получите 2-4 ахмедика
             </div>
-            
+
             <div class="bonus-tab-content" id="spendTab">
                 С помощью полученных бонусов оплатите 0,0000001% покупки или заказа
             </div>
-            
+
             <div class="bonus-form" id="bonusForm">
                 <h3 style="color: var(--dark-color); margin-bottom: 15px; text-align: center;">Активировать карту</h3>
                 <form id="activateBonusForm">
@@ -2413,12 +2555,12 @@
                         <label for="bonusFullName">ФИО держателя</label>
                         <input type="text" id="bonusFullName" class="form-control" required>
                     </div>
-                    
+
                     <div class="form-group">
                         <label for="bonusEmail">Электронная почта</label>
                         <input type="email" id="bonusEmail" class="form-control" required>
                     </div>
-                    
+
                     <div class="form-group">
                         <label for="bonusCardNumber">Номер карты (8 цифр)</label>
                         <input type="text" id="bonusCardNumber" class="form-control" 
@@ -2428,7 +2570,7 @@
                                required>
                         <small style="color: #666; font-size: 0.9rem;">Введите ровно 8 цифр</small>
                     </div>
-                    
+
                     <button type="submit" class="submit-btn">Активировать карту</button>
                 </form>
             </div>
@@ -2599,17 +2741,17 @@
                         <label for="contactName">Ваше имя</label>
                         <input type="text" id="contactName" class="form-control" required>
                     </div>
-                    
+
                     <div class="form-group">
                         <label for="contactEmail">Электронная почта</label>
                         <input type="email" id="contactEmail" class="form-control" required>
                     </div>
-                    
+
                     <div class="form-group">
                         <label for="contactMessage">Текст сообщения</label>
                         <textarea id="contactMessage" class="form-control" required></textarea>
                     </div>
-                    
+
                     <button type="submit" class="submit-btn">Отправить сообщение</button>
                 </form>
                 <div class="contact-success" id="contactSuccess" style="display: none; text-align: center; padding: 20px; color: green;">
@@ -2656,6 +2798,24 @@
         </div>
     </div>
 
+    <!-- НОВАЯ ВЫЕЗЖАЮЩАЯ ПАНЕЛЬ ОБЪЯВЛЕНИЙ -->
+    <div class="announcement-overlay" id="announcementOverlay"></div>
+    <div class="announcement-panel" id="announcementPanel">
+        <div class="announcement-header">
+            <h2>Объявления</h2>
+            <button class="close-announcement" id="closeAnnouncement">&times;</button>
+        </div>
+        <div class="announcement-content">
+            <div class="announcement-card">
+                <div class="announcement-title">Изменения от 18.02.2026</div>
+                <div class="announcement-text">
+                    Добавлено раскрывающееся меню, вкладка «Объявления»
+                </div>
+                <div class="announcement-date">18 февраля 2026 г.</div>
+            </div>
+        </div>
+    </div>
+
     <!-- Модальное окно оформления заказа -->
     <div class="modal-overlay" id="orderModal">
         <div class="modal">
@@ -2669,12 +2829,12 @@
                         <label for="customerName">Ваше имя</label>
                         <input type="text" id="customerName" class="form-control" required>
                     </div>
-                    
+
                     <div class="form-group">
                         <label for="customerEmail">Электронная почта</label>
                         <input type="email" id="customerEmail" class="form-control" required>
                     </div>
-                    
+
                     <div class="delivery-options">
                         <div class="delivery-option">
                             <input type="radio" id="pickup" name="deliveryType" value="pickup" checked>
@@ -2685,12 +2845,12 @@
                             <label for="delivery">Доставить по адресу</label>
                         </div>
                     </div>
-                    
+
                     <div class="form-group delivery-address-group" id="deliveryAddressGroup">
                         <label for="customerAddress">Адрес доставки</label>
                         <input type="text" id="customerAddress" class="form-control">
                     </div>
-                    
+
                     <!-- КНОПКА-КАРТИНКА ДЛЯ БОНУСНОЙ КАРТЫ -->
                     <div class="bonus-card-button" id="bonusCardButton">
                         <img src="img/img/bonus-card.png" alt="Бонусная карта" class="bonus-card-image">
@@ -2700,17 +2860,17 @@
                         </div>
                         <input type="checkbox" class="bonus-card-checkbox" id="useBonusCardInOrder">
                     </div>
-                    
+
                     <!-- ИНФОРМАЦИЯ О БАЛАНСЕ -->
                     <div class="bonus-balance-info" id="bonusBalanceInfo">
                         <i class="fas fa-wallet"></i> Баланс: <span id="bonusBalanceDisplay">0</span> ахмедиков
                     </div>
-                    
+
                     <!-- ПРЕДУПРЕЖДЕНИЕ О МИНИМАЛЬНОЙ СУММЕ -->
                     <div class="bonus-warning" id="bonusWarning" style="display: none;">
                         <i class="fas fa-exclamation-circle"></i> Бонусную карту можно использовать только в заказах от 500 рублей
                     </div>
-                    
+
                     <button type="submit" class="submit-order">Подтвердить заказ</button>
                 </form>
                 <div class="order-success" id="orderSuccess" style="display: none;">
@@ -2731,23 +2891,22 @@
             <div class="footer-content">
                 <div class="footer-logo-container">
                     <div class="footer-logo">
-                        <!-- ИЗМЕНЕНО НАЗВАНИЕ ЛОГОТИПА -->
                         <img src="img/img/logo.png" alt="Логотип Шашлычной 'У Ахмеда'">
                     </div>
                     <p style="font-size: 1.2rem; font-weight: 600;">Шашлычная "У Ахмеда"</p>
                 </div>
-                
+
                 <div class="footer-info">
                     <p>г. Срухаланск, ул. Нахалова 32</p>
                     <p>Ежедневно с 10:00 до 23:00</p>
                     <p class="footer-email">uahmeda52@list.ru</p>
                 </div>
-                
+
                 <!-- КНОПКА ИТД -->
                 <a href="https://итд.com/uahmeda52" target="_blank" class="itd-button">
                     <img src="img/img/itd-logo.png" alt="ИТД" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZmZmIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzAwMCI+SVREPC90ZXh0Pjwvc3ZnPg==';">
                 </a>
-                
+
                 <div class="footer-disclaimer">
                     Сайт является шуточным и созданным в юмористических целях. Мы не предоставляем никаких услуг, а покупки невозможны.
                 </div>
@@ -2758,7 +2917,7 @@
     <script>
         // ========== УПРАВЛЕНИЕ ЗАГРУЗОЧНЫМ ЭКРАНОМ ==========
         const loadingScreen = document.getElementById('loadingScreen');
-        
+
         // Показываем загрузочный экран 2 секунды, затем скрываем
         setTimeout(() => {
             loadingScreen.classList.add('hidden');
@@ -2825,17 +2984,17 @@
                     const rating = parseInt(this.getAttribute('data-rating'));
                     selectedRating = rating;
                     selectedRatingInput.value = rating;
-                    
+
                     // Обновляем отображение звезд
                     updateStarsDisplay(rating);
                 });
-                
+
                 // Эффект при наведении
                 star.addEventListener('mouseenter', function() {
                     const rating = parseInt(this.getAttribute('data-rating'));
                     updateStarsHover(rating);
                 });
-                
+
                 star.addEventListener('mouseleave', function() {
                     updateStarsDisplay(selectedRating);
                 });
@@ -2873,10 +3032,10 @@
             ratingOrderIdInput.value = orderId;
             selectedRating = 0;
             selectedRatingInput.value = 0;
-            
+
             // Сбрасываем звезды
             updateStarsDisplay(0);
-            
+
             ratingModalOverlay.classList.add('active');
             document.body.style.overflow = 'hidden';
         }
@@ -2899,32 +3058,32 @@
         submitRatingBtn.addEventListener('click', function() {
             const orderId = ratingOrderIdInput.value;
             const rating = selectedRating;
-            
+
             if (rating === 0) {
                 alert('Пожалуйста, выберите оценку');
                 return;
             }
-            
+
             // Находим заказ и отмечаем его как полученный
             const orderIndex = orders.findIndex(order => order.id === orderId);
             if (orderIndex !== -1) {
                 orders[orderIndex].status = 'completed';
                 orders[orderIndex].rating = rating;
                 orders[orderIndex].completedAt = new Date().getTime();
-                
+
                 saveOrdersToStorage();
                 renderOrders();
-                
+
                 // Показываем уведомление
                 alert(`Спасибо за вашу оценку: ${rating} звезд!`);
             }
-            
+
             closeRatingModalFunc();
         });
 
         // ========== БОНУСНАЯ КАРТА ==========
         let bonusCard = null;
-        
+
         // DOM элементы для бонусной карты
         const bonusBtn = document.getElementById('bonusBtn');
         const bonusOverlay = document.getElementById('bonusOverlay');
@@ -2963,7 +3122,6 @@
         }
 
         // Обработчики для панели бонусной карты
-        bonusBtn.addEventListener('click', openBonusPanel);
         closeBonus.addEventListener('click', closeBonusPanel);
         bonusOverlay.addEventListener('click', closeBonusPanel);
 
@@ -2971,14 +3129,14 @@
         bonusTabs.forEach(tab => {
             tab.addEventListener('click', function() {
                 const tabId = this.getAttribute('data-tab');
-                
+
                 bonusTabs.forEach(t => t.classList.remove('active'));
                 this.classList.add('active');
-                
+
                 bonusTabContents.forEach(content => {
                     content.classList.remove('active');
                 });
-                
+
                 document.getElementById(tabId + 'Tab').classList.add('active');
             });
         });
@@ -2991,25 +3149,25 @@
         // Активация бонусной карты
         activateBonusForm.addEventListener('submit', function(e) {
             e.preventDefault();
-            
+
             const fullName = document.getElementById('bonusFullName').value;
             const email = document.getElementById('bonusEmail').value;
             const cardNumber = document.getElementById('bonusCardNumber').value;
-            
+
             if (!fullName || !email || !cardNumber) {
                 alert('Пожалуйста, заполните все поля');
                 return;
             }
-            
+
             if (cardNumber.length !== 8) {
                 alert('Номер карты должен содержать ровно 8 цифр');
                 return;
             }
-            
+
             // Проверяем, существует ли уже карта с таким номером
             const savedBonusCards = JSON.parse(localStorage.getItem('ahmedBonusCards') || '[]');
             const existingCard = savedBonusCards.find(card => card.cardNumber === cardNumber);
-            
+
             if (existingCard) {
                 // Если карта уже активирована, загружаем её
                 bonusCard = existingCard;
@@ -3026,23 +3184,23 @@
                     createdAt: new Date().getTime(),
                     userId: userId
                 };
-                
+
                 // Сохраняем карту в список
                 savedBonusCards.push(bonusCard);
                 localStorage.setItem('ahmedBonusCards', JSON.stringify(savedBonusCards));
-                
+
                 alert('Бонусная карта успешно активирована! Теперь вы можете использовать её при оформлении заказов.');
             }
-            
+
             // Сохраняем текущую карту для пользователя
             saveBonusCardToStorage();
-            
+
             // Обновляем отображение
             updateBonusDisplay();
-            
+
             // Скрываем форму активации
             bonusForm.classList.add('hidden');
-            
+
             // Сбрасываем форму
             activateBonusForm.reset();
         });
@@ -3052,7 +3210,7 @@
             if (bonusCard) {
                 // Создаем HTML для блока баланса с картинками
                 bonusBalanceContainer.innerHTML = '';
-                
+
                 // Добавляем маленькие картинки ахмедиков вокруг блока
                 const positions = [
                     { top: '10%', left: '5%', rotate: '15deg' },
@@ -3064,7 +3222,7 @@
                     { bottom: '25%', right: '5%', rotate: '10deg' },
                     { top: '30%', left: '12%', rotate: '-25deg' }
                 ];
-                
+
                 positions.forEach(pos => {
                     const img = document.createElement('img');
                     img.src = 'img/img/ahmedik.png';
@@ -3080,7 +3238,7 @@
                     };
                     bonusBalanceContainer.appendChild(img);
                 });
-                
+
                 // Добавляем блок с балансом
                 const balanceDiv = document.createElement('div');
                 balanceDiv.className = 'bonus-balance';
@@ -3093,16 +3251,16 @@
                     </div>
                 `;
                 bonusBalanceContainer.appendChild(balanceDiv);
-                
+
                 // Обновляем отображение в других местах
                 bonusBalanceDisplay.textContent = bonusCard.balance;
                 bonusBalanceInfo.style.display = 'flex';
-                
+
                 // Показываем кнопку бонусной карты
                 if (bonusCardButton) {
                     bonusCardButton.style.display = 'flex';
                 }
-                
+
                 // Показываем контейнер баланса
                 bonusBalanceContainer.style.display = 'block';
             } else {
@@ -3110,7 +3268,7 @@
                 bonusBalanceContainer.style.display = 'none';
                 bonusForm.classList.remove('hidden');
                 bonusBalanceInfo.style.display = 'none';
-                
+
                 if (bonusCardButton) {
                     bonusCardButton.style.display = 'none';
                 }
@@ -3137,70 +3295,76 @@
         // Функция для начисления бонусов
         function addBonusPoints(points) {
             if (!bonusCard) return false;
-            
+
             bonusCard.balance += points;
             saveBonusCardToStorage();
             updateBonusDisplay();
-            
+
             return true;
         }
 
         // Функция для списания бонусов
         function deductBonusPoints(points) {
             if (!bonusCard || bonusCard.balance < points) return false;
-            
+
             bonusCard.balance -= points;
-            
+
             // После первого использования снимаем флаг
             if (bonusCard.firstUse) {
                 bonusCard.firstUse = false;
             }
-            
+
             saveBonusCardToStorage();
             updateBonusDisplay();
-            
+
             return true;
         }
 
         // Обработка клика на кнопку-картинку бонусной карты
-        bonusCardButton.addEventListener('click', function() {
-            if (!bonusCard) {
-                alert('У вас нет активной бонусной карты. Пожалуйста, активируйте карту в разделе "Бонусная карта".');
-                return;
-            }
-            
-            // Проверяем минимальную сумму заказа
-            const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-            if (totalPrice < 500) {
-                alert('Бонусную карту можно использовать только в заказах от 500 рублей');
-                return;
-            }
-            
-            // Переключаем чекбокс
-            useBonusCardInOrder.checked = !useBonusCardInOrder.checked;
-            
-            // Обновляем стиль кнопки
-            if (useBonusCardInOrder.checked) {
-                bonusCardButton.classList.add('active');
-            } else {
-                bonusCardButton.classList.remove('active');
-            }
-        });
+        if (bonusCardButton) {
+            bonusCardButton.addEventListener('click', function() {
+                if (!bonusCard) {
+                    alert('У вас нет активной бонусной карты. Пожалуйста, активируйте карту в разделе "Бонусная карта".');
+                    return;
+                }
+
+                // Проверяем минимальную сумму заказа
+                const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+                if (totalPrice < 500) {
+                    alert('Бонусную карту можно использовать только в заказах от 500 рублей');
+                    return;
+                }
+
+                // Переключаем чекбокс
+                useBonusCardInOrder.checked = !useBonusCardInOrder.checked;
+
+                // Обновляем стиль кнопки
+                if (useBonusCardInOrder.checked) {
+                    bonusCardButton.classList.add('active');
+                } else {
+                    bonusCardButton.classList.remove('active');
+                }
+            });
+        }
 
         // Обработка изменения чекбокса
-        useBonusCardInOrder.addEventListener('change', function() {
-            if (this.checked) {
-                bonusCardButton.classList.add('active');
-            } else {
-                bonusCardButton.classList.remove('active');
-            }
-        });
+        if (useBonusCardInOrder) {
+            useBonusCardInOrder.addEventListener('change', function() {
+                if (this.checked) {
+                    bonusCardButton.classList.add('active');
+                } else {
+                    bonusCardButton.classList.remove('active');
+                }
+            });
+        }
 
         // Обработка изображения бонусной карты
-        bonusImage.onerror = function() {
-            this.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZmNjZDk3Ii8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIyNCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzVjM2QxZSI+Qm9udXM8L3RleHQ+PC9zdmc+';
-            this.alt = 'Бонусная карта';
-        };
+        if (bonusImage) {
+            bonusImage.onerror = function() {
+                this.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZmNjZDk3Ii8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIyNCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzVjM2QxZSI+Qm9udXM8L3RleHQ+PC9zdmc+';
+                this.alt = 'Бонусная карта';
+            };
+        }
 
         // Обработка изображения кнопки-картинки бонусной карты
         const bonusCardImage = document.querySelector('.bonus-card-image');
@@ -3211,8 +3375,70 @@
             };
         }
 
-        // ========== ОСТАЛЬНЫЙ КОД СКРИПТА ==========
-        
+        // ========== РАСКРЫВАЮЩЕЕСЯ МЕНЮ ==========
+        const hamburgerBtn = document.getElementById('hamburgerBtn');
+        const hamburgerDropdown = document.getElementById('hamburgerDropdown');
+        const dropdownMenuBtn = document.getElementById('dropdownMenuBtn');
+        const dropdownBonusBtn = document.getElementById('dropdownBonusBtn');
+        const dropdownOrdersBtn = document.getElementById('dropdownOrdersBtn');
+        const dropdownAnnouncementBtn = document.getElementById('dropdownAnnouncementBtn');
+
+        // Открытие/закрытие раскрывающегося меню
+        hamburgerBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            hamburgerDropdown.classList.toggle('active');
+        });
+
+        // Закрытие меню при клике вне его
+        document.addEventListener('click', function(e) {
+            if (!hamburgerBtn.contains(e.target) && !hamburgerDropdown.contains(e.target)) {
+                hamburgerDropdown.classList.remove('active');
+            }
+        });
+
+        // Обработчики для пунктов меню
+        dropdownMenuBtn.addEventListener('click', function() {
+            document.querySelector('.menu-header').scrollIntoView({ behavior: 'smooth' });
+            hamburgerDropdown.classList.remove('active');
+        });
+
+        dropdownBonusBtn.addEventListener('click', function() {
+            openBonusPanel();
+            hamburgerDropdown.classList.remove('active');
+        });
+
+        dropdownOrdersBtn.addEventListener('click', function() {
+            openOrdersPanel();
+            hamburgerDropdown.classList.remove('active');
+        });
+
+        dropdownAnnouncementBtn.addEventListener('click', function() {
+            openAnnouncementPanel();
+            hamburgerDropdown.classList.remove('active');
+        });
+
+        // ========== НОВАЯ ВКЛАДКА ОБЪЯВЛЕНИЯ ==========
+        const announcementOverlay = document.getElementById('announcementOverlay');
+        const announcementPanel = document.getElementById('announcementPanel');
+        const closeAnnouncement = document.getElementById('closeAnnouncement');
+
+        function openAnnouncementPanel() {
+            announcementOverlay.classList.add('active');
+            announcementPanel.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeAnnouncementPanel() {
+            announcementOverlay.classList.remove('active');
+            announcementPanel.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        closeAnnouncement.addEventListener('click', closeAnnouncementPanel);
+        announcementOverlay.addEventListener('click', closeAnnouncementPanel);
+
+        // ========== ОСТАЛЬНОЙ КОД СКРИПТА ==========
+
         // Данные для карусели баннеров
         const bannerImages = [
             { src: 'img/banner1.png', alt: 'Баннер 1 - Акции и скидки' },
@@ -3362,7 +3588,7 @@
         let cart = [];
         let orders = [];
         let orderNumber = 1;
-        
+
         // ИДЕНТИФИКАТОР ПОЛЬЗОВАТЕЛЯ (для изоляции заказов)
         let userId = localStorage.getItem('ahmedUserId');
         if (!userId) {
@@ -3415,13 +3641,13 @@
         // ========== ФУНКЦИИ КАРУСЕЛИ ==========
         function showSlide(index) {
             if (isTransitioning) return;
-            
+
             isTransitioning = true;
-            
+
             currentSlide = index;
             const offset = -currentSlide * 100;
             carouselTrack.style.transform = `translateX(${offset}%)`;
-            
+
             setTimeout(() => {
                 isTransitioning = false;
             }, 800);
@@ -3429,21 +3655,21 @@
 
         function nextSlide() {
             let nextIndex = currentSlide + 1;
-            
+
             if (nextIndex >= slides.length) {
                 const firstSlide = slides[0].cloneNode(true);
                 carouselTrack.appendChild(firstSlide);
-                
+
                 setTimeout(() => {
                     showSlide(currentSlide + 1);
                 }, 50);
-                
+
                 setTimeout(() => {
                     slides[0].remove();
                     carouselTrack.style.transition = 'none';
                     carouselTrack.style.transform = `translateX(0)`;
                     currentSlide = 0;
-                    
+
                     setTimeout(() => {
                         carouselTrack.style.transition = 'transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
                     }, 50);
@@ -3474,13 +3700,13 @@
         function handleTouchEnd() {
             const swipeThreshold = 50;
             const diff = touchStartX - touchEndX;
-            
+
             if (Math.abs(diff) > swipeThreshold) {
                 if (diff > 0) {
                     nextSlide();
                 }
             }
-            
+
             startAutoSlide();
         }
 
@@ -3497,7 +3723,7 @@
                     img.onerror = function() {
                         handleImageError(this);
                     };
-                    
+
                     // Делаем второй баннер (индекс 1) кликабельным
                     if (index === 1) {
                         img.style.cursor = 'pointer';
@@ -3505,7 +3731,7 @@
                             e.preventDefault();
                             openBonusPanel();
                         });
-                        
+
                         // Также делаем весь слайд кликабельным
                         slide.style.cursor = 'pointer';
                         slide.addEventListener('click', function(e) {
@@ -3516,36 +3742,36 @@
                     }
                 }
             });
-            
+
             carouselContainer.addEventListener('touchstart', handleTouchStart, false);
             carouselContainer.addEventListener('touchmove', handleTouchMove, false);
             carouselContainer.addEventListener('touchend', handleTouchEnd, false);
-            
+
             let mouseDownX = 0;
             let mouseUpX = 0;
-            
+
             carouselContainer.addEventListener('mousedown', function(e) {
                 mouseDownX = e.clientX;
                 stopAutoSlide();
             });
-            
+
             carouselContainer.addEventListener('mouseup', function(e) {
                 mouseUpX = e.clientX;
                 const diff = mouseDownX - mouseUpX;
                 const swipeThreshold = 50;
-                
+
                 if (Math.abs(diff) > swipeThreshold) {
                     if (diff > 0) {
                         nextSlide();
                     }
                 }
-                
+
                 startAutoSlide();
             });
-            
+
             carouselContainer.addEventListener('mouseenter', stopAutoSlide);
             carouselContainer.addEventListener('mouseleave', startAutoSlide);
-            
+
             startAutoSlide();
         }
 
@@ -3558,7 +3784,7 @@
                 const orderNum = parseInt(order.id.replace('AHM-', ''));
                 return orderNum > max ? orderNum : max;
             }, 0);
-            
+
             // Возвращаем следующий номер
             return Math.max(orderNumber, maxOrderNumber + 1);
         }
@@ -3566,24 +3792,24 @@
         function createOrder(customerData, cartItems, deliveryType, address, useBonus) {
             // Используем уникальный номер заказа
             const newOrderNumber = getNextOrderNumber();
-            
+
             // Рассчитываем итоговую сумму
             let total = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
             let bonusEarnedAmount = 0;
             let bonusSpentAmount = 0;
             let bonusUsed = false;
-            
+
             // Если используется бонусная карта и сумма заказа >= 500 рублей
             if (useBonus && bonusCard && total >= 500) {
                 bonusUsed = true;
-                
+
                 // Скидка 1 рубль
                 total = Math.max(0, total - 1);
-                
+
                 // Начисляем 2-4 ахмедика (рандомно)
                 bonusEarnedAmount = Math.floor(Math.random() * 3) + 2; // 2, 3 или 4
                 addBonusPoints(bonusEarnedAmount);
-                
+
                 // Только если это НЕ первое использование карты, списываем бонусы
                 if (!bonusCard.firstUse && bonusCard.balance > 0) {
                     // Списание рандомного количества ахмедиков от 1 до 5 (но не больше баланса)
@@ -3592,20 +3818,20 @@
                         bonusSpentAmount = Math.floor(Math.random() * maxDeductible) + 1;
                         // Убедимся, что не списываем больше, чем есть
                         bonusSpentAmount = Math.min(bonusSpentAmount, bonusCard.balance);
-                        
+
                         if (deductBonusPoints(bonusSpentAmount)) {
                             // Успешно списали бонусы
                         }
                     }
                 }
-                
+
                 // После первого использования снимаем флаг
                 if (bonusCard.firstUse) {
                     bonusCard.firstUse = false;
                     saveBonusCardToStorage();
                 }
             }
-            
+
             const order = {
                 id: `AHM-${newOrderNumber.toString().padStart(3, '0')}`,
                 userId: userId, // Добавляем идентификатор пользователя
@@ -3629,13 +3855,13 @@
                 // Флаг для отслеживания, нужно ли показывать кнопку "Уже забрал"
                 canBeReceived: deliveryType === 'pickup'
             };
-            
+
             // Обновляем глобальный номер заказа
             orderNumber = newOrderNumber + 1;
             orders.unshift(order);
             saveOrdersToStorage();
             renderOrders();
-            
+
             return order;
         }
 
@@ -3668,12 +3894,12 @@
             const fiveMinutesInMs = 5 * minuteInMs;
             const tenMinutesInMs = 10 * minuteInMs;
             const fifteenMinutesInMs = 15 * minuteInMs;
-            
+
             orders.forEach(order => {
                 // Обновляем статус только для незавершенных заказов
                 if (order.status !== 'completed') {
                     const timeSinceCreation = now - order.statusChanged;
-                    
+
                     if (order.status === 'ordered' && timeSinceCreation > fiveMinutesInMs) {
                         order.status = 'cooking';
                         order.statusChanged = now;
@@ -3690,7 +3916,7 @@
                     }
                 }
             });
-            
+
             saveOrdersToStorage();
             renderOrders();
         }
@@ -3710,23 +3936,23 @@
         function renderOrders() {
             // Показываем только заказы текущего пользователя
             const userOrders = orders.filter(order => order.userId === userId);
-            
+
             if (userOrders.length === 0) {
                 ordersContainer.innerHTML = '<p class="no-orders">У вас еще нет заказов</p>';
                 return;
             }
-            
+
             ordersContainer.innerHTML = '';
-            
+
             userOrders.forEach(order => {
                 const orderCard = document.createElement('div');
                 orderCard.className = 'order-card';
-                
+
                 // Добавляем класс completed для полученных заказов
                 if (order.status === 'completed') {
                     orderCard.classList.add('completed');
                 }
-                
+
                 let itemsHtml = '';
                 order.items.forEach(item => {
                     itemsHtml += `
@@ -3738,32 +3964,32 @@
                         </div>
                     `;
                 });
-                
+
                 // Определяем, нужно ли показывать QR-код и кнопку
                 // Для заказов с доставкой показываем кнопку "Уже забрал" при статусе "ready"
                 const showQrCode = order.status === 'ready' && order.deliveryType === 'pickup';
                 const showReceivedBtn = order.status === 'ready' && order.status !== 'completed';
                 const showDeleteBtn = order.status === 'completed';
-                
+
                 // Информация о бонусах
                 let bonusInfo = '';
                 if (order.bonusUsed) {
                     bonusInfo += `<div style="margin-top: 10px; font-size: 0.9rem; color: #666;">
                         <i class="fas fa-percent"></i> Использована бонусная карта (скидка 1 рубль)`;
-                    
+
                     if (order.bonusEarned > 0) {
                         bonusInfo += `<br><i class="fas fa-gift"></i> Начислено бонусов: ${order.bonusEarned}`;
                     }
-                    
+
                     if (order.bonusSpent > 0) {
                         bonusInfo += `<br><i class="fas fa-coins"></i> Списано бонусов: ${order.bonusSpent}`;
                     } else if (bonusCard && bonusCard.firstUse) {
                         bonusInfo += `<br><i class="fas fa-star"></i> Первое использование карты - бонусы не списываются`;
                     }
-                    
+
                     bonusInfo += `</div>`;
                 }
-                
+
                 orderCard.innerHTML = `
                     <div class="order-header">
                         <div>
@@ -3801,9 +4027,9 @@
                     </div>
                     ` : ''}
                 `;
-                
+
                 ordersContainer.appendChild(orderCard);
-                
+
                 // Добавляем обработчик для кнопки "Уже забрал" или "Заказ получен"
                 if (showReceivedBtn && order.status !== 'completed') {
                     const receivedBtn = orderCard.querySelector('.received-btn');
@@ -3814,7 +4040,7 @@
                         });
                     }
                 }
-                
+
                 // Добавляем обработчик для кнопки "Удалить заказ"
                 if (showDeleteBtn) {
                     const deleteBtn = orderCard.querySelector('.delete-order-btn');
@@ -3837,13 +4063,13 @@
         function loadOrdersFromStorage() {
             const savedOrders = localStorage.getItem('ahmedOrders');
             const savedOrderNumber = localStorage.getItem('ahmedOrderNumber');
-            
+
             if (savedOrders) {
                 orders = JSON.parse(savedOrders);
                 updateOrderStatuses();
                 renderOrders();
             }
-            
+
             if (savedOrderNumber) {
                 orderNumber = parseInt(savedOrderNumber);
             }
@@ -3864,8 +4090,9 @@
         }
 
         // Обработчики для панели заказов
-        ordersBtn.addEventListener('click', openOrdersPanel);
-        closeOrders.addEventListener('click', closeOrdersPanel);
+        if (closeOrders) {
+            closeOrders.addEventListener('click', closeOrdersPanel);
+        }
         ordersOverlay.addEventListener('click', closeOrdersPanel);
 
         // ========== ОСТАЛЬНЫЕ ФУНКЦИИ ==========
@@ -3874,7 +4101,7 @@
         function showCartNotification(itemName) {
             notificationMessage.textContent = `${itemName} добавлен в вашу корзину`;
             cartNotification.classList.add('show');
-            
+
             setTimeout(() => {
                 cartNotification.classList.remove('show');
             }, 3000);
@@ -3918,7 +4145,7 @@
         function createMenuItem(item) {
             const div = document.createElement('div');
             div.className = 'menu-item';
-            
+
             const img = document.createElement('img');
             img.src = item.image;
             img.alt = item.name;
@@ -3927,7 +4154,7 @@
                 this.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAwIiBoZWlnaHQ9IjQwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZmNjZDk3Ii8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIyNCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzVjM2QxZSI+U2hhc2hseWs8L3RleHQ+PC9zdmc+';
                 this.alt = 'Изображение не загружено: ' + item.name;
             };
-            
+
             div.innerHTML = `
                 <div class="item-image">
                     <!-- Изображение будет добавлено через JavaScript -->
@@ -3941,9 +4168,9 @@
                     </div>
                 </div>
             `;
-            
+
             div.querySelector('.item-image').appendChild(img);
-            
+
             return div;
         }
 
@@ -3951,21 +4178,18 @@
         categoryButtons.forEach(button => {
             button.addEventListener('click', () => {
                 const category = button.dataset.category;
-                
+
                 categoryButtons.forEach(btn => btn.classList.remove('active'));
                 button.classList.add('active');
-                
+
                 menuSections.forEach(section => section.classList.remove('active'));
                 document.getElementById(category).classList.add('active');
-                
+
                 document.getElementById(category).scrollIntoView({ behavior: 'smooth' });
             });
         });
 
-        // Кнопка в шапке (Меню)
-        menuBtn.addEventListener('click', () => {
-            document.querySelector('.menu-header').scrollIntoView({ behavior: 'smooth' });
-        });
+        // Кнопка в шапке (Меню) - теперь в раскрывающемся меню
 
         // Открытие/закрытие корзины
         cartIcon.addEventListener('click', openCart);
@@ -3999,6 +4223,12 @@
                 if (ratingModalOverlay.classList.contains('active')) {
                     closeRatingModalFunc();
                 }
+                if (announcementPanel.classList.contains('active')) {
+                    closeAnnouncementPanel();
+                }
+                if (hamburgerDropdown.classList.contains('active')) {
+                    hamburgerDropdown.classList.remove('active');
+                }
             }
         });
 
@@ -4018,23 +4248,23 @@
         // Форма "Связаться с нами"
         contactForm.addEventListener('submit', function(e) {
             e.preventDefault();
-            
+
             const name = document.getElementById('contactName').value;
             const email = document.getElementById('contactEmail').value;
             const message = document.getElementById('contactMessage').value;
-            
+
             if (!name || !email || !message) {
                 alert('Пожалуйста, заполните все поля');
                 return;
             }
-            
+
             const mailtoLink = `mailto:mustafinamir10378@gmail.com?subject=Сообщение от ${encodeURIComponent(name)}&body=Имя: ${encodeURIComponent(name)}%0D%0AEmail: ${encodeURIComponent(email)}%0D%0A%0D%0AСообщение:%0D%0A${encodeURIComponent(message)}`;
-            
+
             window.location.href = mailtoLink;
-            
+
             contactForm.style.display = 'none';
             contactSuccess.style.display = 'block';
-            
+
             setTimeout(() => {
                 contactForm.reset();
                 contactForm.style.display = 'block';
@@ -4060,11 +4290,11 @@
                     break;
                 }
             }
-            
+
             if (!item) return;
-            
+
             const existingItem = cart.find(cartItem => cartItem.id === itemId);
-            
+
             if (existingItem) {
                 existingItem.quantity += 1;
             } else {
@@ -4073,11 +4303,11 @@
                     quantity: 1
                 });
             }
-            
+
             updateCart();
-            
+
             showCartNotification(item.name);
-            
+
             const cartIconElement = document.querySelector('.cart-icon');
             cartIconElement.style.transform = 'scale(1.2)';
             setTimeout(() => {
@@ -4089,14 +4319,14 @@
         function updateCart() {
             const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
             cartCount.textContent = totalItems;
-            
+
             renderCartItems();
-            
+
             const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
             cartTotalElement.textContent = `${totalPrice} ₽`;
-            
+
             orderBtn.disabled = cart.length === 0;
-            
+
             saveCartToStorage();
         }
 
@@ -4108,11 +4338,11 @@
                 cartItemsContainer.appendChild(emptyCartMessage);
                 return;
             }
-            
+
             emptyCartMessage.style.display = 'none';
-            
+
             cartItemsContainer.innerHTML = '';
-            
+
             cart.forEach(item => {
                 const cartItemElement = document.createElement('div');
                 cartItemElement.className = 'cart-item';
@@ -4130,21 +4360,21 @@
                 `;
                 cartItemsContainer.appendChild(cartItemElement);
             });
-            
+
             document.querySelectorAll('.decrease-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
                     const itemId = parseInt(btn.dataset.id);
                     updateCartItemQuantity(itemId, -1);
                 });
             });
-            
+
             document.querySelectorAll('.increase-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
                     const itemId = parseInt(btn.dataset.id);
                     updateCartItemQuantity(itemId, 1);
                 });
             });
-            
+
             document.querySelectorAll('.remove-item').forEach(btn => {
                 btn.addEventListener('click', () => {
                     const itemId = parseInt(btn.dataset.id);
@@ -4156,14 +4386,14 @@
         // Изменение количества товара в корзине
         function updateCartItemQuantity(itemId, change) {
             const itemIndex = cart.findIndex(item => item.id === itemId);
-            
+
             if (itemIndex !== -1) {
                 cart[itemIndex].quantity += change;
-                
+
                 if (cart[itemIndex].quantity <= 0) {
                     cart.splice(itemIndex, 1);
                 }
-                
+
                 updateCart();
             }
         }
@@ -4171,7 +4401,7 @@
         // Удаление товара из корзины
         function removeFromCart(itemId) {
             const itemIndex = cart.findIndex(item => item.id === itemId);
-            
+
             if (itemIndex !== -1) {
                 cart.splice(itemIndex, 1);
                 updateCart();
@@ -4196,30 +4426,30 @@
         orderBtn.addEventListener('click', () => {
             if (cart.length > 0) {
                 closeCartPanel();
-                
+
                 setTimeout(() => {
                     orderModal.classList.add('active');
                     document.body.style.overflow = 'hidden';
-                    
+
                     orderForm.reset();
                     orderForm.style.display = 'block';
                     orderSuccess.style.display = 'none';
-                    
+
                     deliveryAddressGroup.classList.remove('visible');
                     deliveryAddressInput.removeAttribute('required');
-                    
+
                     document.getElementById('pickup').checked = true;
-                    
+
                     // Сбрасываем чекбокс бонусной карты
                     useBonusCardInOrder.checked = false;
                     bonusCardButton.classList.remove('active');
-                    
+
                     // Обновляем отображение баланса
                     if (bonusCard) {
                         bonusBalanceDisplay.textContent = bonusCard.balance;
                         bonusCardButton.style.display = 'flex';
                         bonusBalanceInfo.style.display = 'flex';
-                        
+
                         // Проверяем минимальную сумму заказа
                         const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
                         if (totalPrice < 500) {
@@ -4234,7 +4464,7 @@
                         bonusBalanceInfo.style.display = 'none';
                         bonusWarning.style.display = 'none';
                     }
-                    
+
                     // Скрываем информацию о бонусах в успешном заказе
                     bonusEarnedInfo.style.display = 'none';
                     bonusSpentInfo.style.display = 'none';
@@ -4259,30 +4489,30 @@
         // Оформление заказа
         orderForm.addEventListener('submit', (e) => {
             e.preventDefault();
-            
+
             const name = document.getElementById('customerName').value;
             const email = document.getElementById('customerEmail').value;
             const deliveryType = document.querySelector('input[name="deliveryType"]:checked').value;
             const address = deliveryType === 'delivery' ? document.getElementById('customerAddress').value : null;
             const useBonus = useBonusCardInOrder.checked;
-            
+
             if (!name || !email) {
                 alert('Пожалуйста, заполните все обязательные поля');
                 return;
             }
-            
+
             if (deliveryType === 'delivery' && !address) {
                 alert('Пожалуйста, укажите адрес доставки');
                 return;
             }
-            
+
             // Проверяем минимальную сумму заказа для использования бонусной карты
             const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
             if (useBonus && totalPrice < 500) {
                 alert('Бонусную карту можно использовать только в заказах от 500 рублей');
                 return;
             }
-            
+
             const newOrder = createOrder(
                 { name, email },
                 cart,
@@ -4290,17 +4520,17 @@
                 address,
                 useBonus
             );
-            
+
             const newOrderNumber = newOrder.id;
             orderNumberElement.textContent = newOrderNumber;
-            
+
             // Показываем информацию о начисленных и списанных бонусах
             if (newOrder.bonusUsed) {
                 if (newOrder.bonusEarned > 0) {
                     bonusEarned.textContent = newOrder.bonusEarned;
                     bonusEarnedInfo.style.display = 'block';
                 }
-                
+
                 if (newOrder.bonusSpent > 0) {
                     bonusSpent.textContent = newOrder.bonusSpent;
                     bonusSpentInfo.style.display = 'block';
@@ -4309,18 +4539,18 @@
                     bonusSpentInfo.style.display = 'none';
                 }
             }
-            
+
             orderForm.style.display = 'none';
             orderSuccess.style.display = 'block';
-            
+
             setTimeout(() => {
                 cart = [];
                 updateCart();
-                
+
                 setTimeout(() => {
                     orderModal.classList.remove('active');
                     document.body.style.overflow = 'auto';
-                    
+
                     openOrdersPanel();
                 }, 3000);
             }, 1500);
@@ -4337,7 +4567,7 @@
             initPopup();
             initRatingStars(); // Инициализируем звезды рейтинга
             updateBonusDisplay(); // Обновляем отображение бонусной карты
-            
+
             // Обновляем статусы заказов каждую минуту
             setInterval(updateOrderStatuses, 60000);
         });
