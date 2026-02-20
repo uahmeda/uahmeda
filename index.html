@@ -37,105 +37,6 @@
             object-fit: contain;
         }
 
-        /* ========== POP-UP ОКНО ========== */
-        .popup-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.7);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 2001;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s ease;
-        }
-
-        .popup-overlay.active {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        .popup-container {
-            position: relative;
-            max-width: 90%;
-            max-height: 90%;
-            width: auto;
-            height: auto;
-        }
-
-        .popup-image {
-            width: 100%;
-            height: auto;
-            max-width: 500px;
-            max-height: 500px;
-            border-radius: 10px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            cursor: pointer;
-            transition: transform 0.3s ease;
-        }
-
-        .popup-image:hover {
-            transform: scale(1.02);
-        }
-
-        .close-popup {
-            position: absolute;
-            top: -20px;
-            right: -20px;
-            width: 45px;
-            height: 45px;
-            background-color: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.8rem;
-            cursor: pointer;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-            transition: background-color 0.3s ease;
-            border: none;
-            z-index: 10;
-        }
-
-        .close-popup:hover {
-            background-color: var(--main-color);
-        }
-
-        /* Адаптивность для поп-апа */
-        @media (max-width: 768px) {
-            .popup-image {
-                max-width: 350px;
-                max-height: 350px;
-            }
-
-            .close-popup {
-                width: 40px;
-                height: 40px;
-                font-size: 1.5rem;
-                top: -15px;
-                right: -15px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .popup-image {
-                max-width: 280px;
-                max-height: 280px;
-            }
-
-            .close-popup {
-                width: 35px;
-                height: 35px;
-                font-size: 1.3rem;
-                top: -12px;
-                right: -12px;
-            }
-        }
-
         /* ========== ВЫЕЗЖАЮЩАЯ ПАНЕЛЬ БОНУСНОЙ КАРТЫ ========== */
         .bonus-overlay {
             position: fixed;
@@ -768,12 +669,47 @@
             padding: 25px;
         }
 
+        /* Добавляем отступ сверху для карточек объявлений */
+        .announcement-content {
+            padding-top: 30px;
+        }
+
         .announcement-card {
             background-color: var(--main-color);
             border-radius: 10px;
             padding: 25px;
             box-shadow: var(--shadow);
             border: 2px solid var(--dark-color);
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .announcement-card:last-child {
+            margin-bottom: 0;
+        }
+
+        .announcement-card.pinned {
+            border: 3px solid #ffd700;
+            background-color: #fff9e6;
+            position: relative;
+        }
+
+        .pinned-icon {
+            position: absolute;
+            top: -10px;
+            left: 20px;
+            background-color: #ffd700;
+            color: var(--dark-color);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            transform: rotate(45deg);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            z-index: 2;
         }
 
         .announcement-title {
@@ -784,12 +720,25 @@
             margin-bottom: 15px;
             border-bottom: 1px dashed var(--dark-color);
             padding-bottom: 10px;
+            padding-right: 30px;
         }
 
         .announcement-text {
             font-size: 1.2rem;
             line-height: 1.6;
             color: var(--text-color);
+            word-break: break-word;
+        }
+
+        .announcement-text a {
+            color: var(--dark-color);
+            text-decoration: underline;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        .announcement-text a:hover {
+            color: #7a4f29;
         }
 
         .announcement-date {
@@ -2170,6 +2119,29 @@
                 width: 30px;
                 height: 30px;
             }
+
+            /* Стили для объявлений на мобильных */
+            .announcement-content {
+                padding-top: 30px;
+            }
+
+            .announcement-card {
+                padding: 20px;
+            }
+
+            .announcement-title {
+                font-size: 1.5rem;
+            }
+
+            .announcement-text {
+                font-size: 1rem;
+            }
+
+            .pinned-icon {
+                width: 35px;
+                height: 35px;
+                font-size: 1rem;
+            }
         }
 
         @media (max-width: 480px) {
@@ -2248,6 +2220,10 @@
             .bonus-content,
             .announcement-content {
                 padding: 0 20px;
+            }
+
+            .announcement-content {
+                padding-top: 25px;
             }
 
             .cart-footer {
@@ -2334,6 +2310,22 @@
                 width: 25px;
                 height: 25px;
             }
+
+            .announcement-card {
+                padding: 15px;
+            }
+
+            .announcement-title {
+                font-size: 1.3rem;
+            }
+
+            .pinned-icon {
+                width: 30px;
+                height: 30px;
+                font-size: 0.9rem;
+                top: -8px;
+                left: 15px;
+            }
         }
 
         @media (max-width: 360px) {
@@ -2398,6 +2390,14 @@
                 width: 20px;
                 height: 20px;
             }
+
+            .announcement-title {
+                font-size: 1.2rem;
+            }
+
+            .announcement-text {
+                font-size: 0.95rem;
+            }
         }
 
         @media (max-height: 500px) and (orientation: landscape) {
@@ -2414,17 +2414,7 @@
     </style>
 </head>
 <body>
-    <!-- POP-UP ОКНО -->
-    <div class="popup-overlay" id="popupOverlay">
-        <div class="popup-container">
-            <button class="close-popup" id="closePopup">&times;</button>
-            <a href="https://итд.com/uahmeda52" target="_blank" id="popupLink">
-                <img src="img/img/popup.png" alt="Специальное предложение" class="popup-image" id="popupImage">
-            </a>
-        </div>
-    </div>
-
-    <!-- ЗАГРУЗОЧНЫЙ ЭКРАН -->
+    <!-- ЗАГРУЗОЧНЫЙ ЭКРАН (POP-AP УДАЛЕН) -->
     <div class="loading-screen" id="loadingScreen">
         <img src="img/img/loading.gif" alt="Загрузка" class="loading-gif">
     </div>
@@ -2504,7 +2494,7 @@
 
                 <div class="logo">
                     <div class="logo-image">
-                        <img src="img/img/logo-masl.png" alt="Логотип Шашлычной 'У Ахмеда'">
+                        <img src="img/img/logo.png" alt="Логотип Шашлычной 'У Ахмеда'">
                     </div>
                     <div class="logo-text">
                         <h1>Шашлычная "У Ахмеда"</h1>
@@ -2806,6 +2796,18 @@
             <button class="close-announcement" id="closeAnnouncement">&times;</button>
         </div>
         <div class="announcement-content">
+            <!-- Закрепленное объявление (поверх) -->
+            <div class="announcement-card pinned">
+                <div class="pinned-icon">
+                    <i class="fas fa-thumbtack"></i>
+                </div>
+                <div class="announcement-title">Подпишитесь на наш ИТД канал</div>
+                <div class="announcement-text">
+                    <a href="https://итд.com/uahmeda52" target="_blank">итд.com/uahmeda52</a>
+                </div>
+            </div>
+
+            <!-- Обычное объявление -->
             <div class="announcement-card">
                 <div class="announcement-title">Изменения от 18.02.2026</div>
                 <div class="announcement-text">
@@ -2908,7 +2910,7 @@
                 </a>
 
                 <div class="footer-disclaimer">
-                    Сайт является шуточным и созданным в юмористических целях. Мы не предоставляем никаких услуг, а покупки невозможны. Создано DeepSeek, опубликовано на Github.
+                    Сайт является шуточным и созданным в юмористических целях. Мы не предоставляем никаких услуг, а покупки невозможны.
                 </div>
             </div>
         </div>
@@ -2922,51 +2924,6 @@
         setTimeout(() => {
             loadingScreen.classList.add('hidden');
         }, 1000);
-
-        // ========== POP-UP ОКНО ==========
-        const popupOverlay = document.getElementById('popupOverlay');
-        const closePopup = document.getElementById('closePopup');
-        const popupImage = document.getElementById('popupImage');
-        const popupLink = document.getElementById('popupLink');
-
-        // Показ поп-апа через 3 секунды после загрузки страницы (ВСЕГДА ПОЯВЛЯЕТСЯ)
-        function showPopup() {
-            setTimeout(() => {
-                popupOverlay.classList.add('active');
-                document.body.style.overflow = 'hidden';
-            }, 3000);
-        }
-
-        // Закрытие поп-апа
-        function closePopupFunc() {
-            popupOverlay.classList.remove('active');
-            document.body.style.overflow = 'auto';
-        }
-
-        // Обработчики событий
-        closePopup.addEventListener('click', function(e) {
-            e.preventDefault();
-            closePopupFunc();
-        });
-
-        // Закрытие поп-апа при клике на overlay (фон)
-        popupOverlay.addEventListener('click', function(e) {
-            if (e.target === popupOverlay) {
-                closePopupFunc();
-            }
-        });
-
-        // Обработка ошибки загрузки изображения
-        popupImage.onerror = function() {
-            // Если изображение не загрузилось, показываем заглушку
-            this.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwMCIgaGVpZ2h0PSIyMDAwIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiNmY2NkOTciLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjQ4IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjNWMzZDFlIiBkeT0iLjNlbSI+U3BlY2lhbCBPZmZlcjwvdGV4dD48L3N2Zz4=';
-            this.alt = 'Специальное предложение';
-        };
-
-        // Инициализация поп-апа
-        function initPopup() {
-            showPopup();
-        }
 
         // ========== МОДАЛЬНОЕ ОКНО ОЦЕНКИ ==========
         const ratingModalOverlay = document.getElementById('ratingModalOverlay');
@@ -4564,7 +4521,6 @@
             loadOrdersFromStorage();
             loadBonusCardFromStorage(); // Загружаем бонусную карту
             toggleScrollToTopButton();
-            initPopup();
             initRatingStars(); // Инициализируем звезды рейтинга
             updateBonusDisplay(); // Обновляем отображение бонусной карты
 
