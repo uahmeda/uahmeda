@@ -65,51 +65,96 @@
             padding: 0 20px;
         }
 
-        /* Шапка сайта */
-        header {
-            background-color: var(--main-color);
-            padding: 10px 0;
-            box-shadow: var(--shadow);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
+        /* Шапка сайта - с большим логотипом */
+header {
+    background-color: var(--main-color);
+    padding: 15px 0;
+    box-shadow: var(--shadow);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
 
-        .header-content {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
 
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+}
 
-        .logo-image {
-            height: 60px;
-            width: 60px;
-            border-radius: 50%;
-            overflow: hidden;
-        }
+.logo-image {
+    height: 80px;
+    width: auto;
+    background-color: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    flex-shrink: 0;
+}
 
-        .logo-image img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
+.logo-image img {
+    height: 100%;
+    width: auto;
+    max-width: 100%;
+    object-fit: contain;
+    display: block;
+    border-radius: 10px;
+}
 
-        .logo-text h1 {
-            font-size: 1.5rem;
-            color: var(--dark-color);
-        }
+.logo-text {
+    display: block;
+    flex-grow: 1;
+}
 
-        .logo-text p {
-            font-size: 0.8rem;
-            color: var(--text-color);
-            font-style: italic;
-        }
+.logo-text h1 {
+    font-size: 1.8rem;
+    color: var(--dark-color);
+    line-height: 1.2;
+    margin-bottom: 5px;
+}
+
+.logo-text p {
+    font-size: 1rem;
+    color: var(--text-color);
+    font-style: italic;
+}
+
+/* Адаптивность для мобильных */
+@media (max-width: 768px) {
+    .logo-image {
+        height: 60px;
+    }
+    .logo-text h1 {
+        font-size: 1.4rem;
+    }
+    .logo-text p {
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .logo {
+        gap: 10px;
+    }
+    .logo-image {
+        height: 50px;
+    }
+    .logo-text h1 {
+        font-size: 1.1rem;
+    }
+    .logo-text p {
+        font-size: 0.8rem;
+    }
+}
 
         /* ========== СТИЛИ ФОРМ ========== */
         .form-group {
@@ -1095,7 +1140,7 @@
             <div class="header-content">
                 <div class="logo">
                     <div class="logo-image">
-                        <img src="img/img/logo.png" alt="Логотип">
+                        <img src="img/img/logo-big.png" alt="Логотип">
                     </div>
                     <div class="logo-text">
                         <h1>Шашлычная "У Ахмеда"</h1>
