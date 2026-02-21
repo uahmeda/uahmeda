@@ -66,96 +66,97 @@
         }
 
         /* Шапка сайта - с большим логотипом */
-header {
-    background-color: var(--main-color);
-    padding: 15px 0;
-    box-shadow: var(--shadow);
-    position: sticky;
-    top: 0;
-    z-index: 100;
-}
+        header {
+            background-color: var(--main-color);
+            padding: 15px 0;
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
 
-.header-content {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
 
-.logo {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    width: 100%;
-    max-width: 800px;
-    margin: 0 auto;
-}
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+        }
 
-.logo-image {
-    height: 80px;
-    width: auto;
-    background-color: transparent;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-    flex-shrink: 0;
-}
+        .logo-image {
+            height: 80px;
+            width: auto;
+            background-color: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
 
-.logo-image img {
-    height: 100%;
-    width: auto;
-    max-width: 100%;
-    object-fit: contain;
-    display: block;
-    border-radius: 10px;
-}
+        .logo-image img {
+            height: 100%;
+            width: auto;
+            max-width: 100%;
+            object-fit: contain;
+            display: block;
+            border-radius: 10px;
+        }
 
-.logo-text {
-    display: block;
-    flex-grow: 1;
-}
+        .logo-text {
+            display: block;
+            flex-grow: 1;
+        }
 
-.logo-text h1 {
-    font-size: 1.8rem;
-    color: var(--dark-color);
-    line-height: 1.2;
-    margin-bottom: 5px;
-}
+        .logo-text h1 {
+            font-size: 1.8rem;
+            color: var(--dark-color);
+            line-height: 1.2;
+            margin-bottom: 5px;
+        }
 
-.logo-text p {
-    font-size: 1rem;
-    color: var(--text-color);
-    font-style: italic;
-}
+        .logo-text p {
+            font-size: 1rem;
+            color: var(--text-color);
+            font-style: italic;
+        }
 
-/* Адаптивность для мобильных */
-@media (max-width: 768px) {
-    .logo-image {
-        height: 60px;
-    }
-    .logo-text h1 {
-        font-size: 1.4rem;
-    }
-    .logo-text p {
-        font-size: 0.9rem;
-    }
-}
+        /* Адаптивность для мобильных */
+        @media (max-width: 768px) {
+            .logo-image {
+                height: 60px;
+            }
+            .logo-text h1 {
+                font-size: 1.4rem;
+            }
+            .logo-text p {
+                font-size: 0.9rem;
+            }
+        }
 
-@media (max-width: 480px) {
-    .logo {
-        gap: 10px;
-    }
-    .logo-image {
-        height: 50px;
-    }
-    .logo-text h1 {
-        font-size: 1.1rem;
-    }
-    .logo-text p {
-        font-size: 0.8rem;
-    }
-}
+        @media (max-width: 480px) {
+            .logo {
+                gap: 10px;
+            }
+            .logo-image {
+                height: 50px;
+            }
+            .logo-text h1 {
+                font-size: 1.1rem;
+            }
+            .logo-text p {
+                font-size: 0.8rem;
+            }
+        }
 
+        /* Остальные стили без изменений... */
         /* ========== СТИЛИ ФОРМ ========== */
         .form-group {
             margin-bottom: 20px;
@@ -1071,8 +1072,8 @@ header {
         /* Адаптивность */
         @media (max-width: 768px) {
             body { padding-bottom: 65px; }
-            .logo-text { display: none; }
-            .logo-image { height: 50px; width: 50px; }
+            .logo-text { display: block; }
+            .logo-image { height: 60px; }
             .banner-carousel { height: 40vh; min-height: 250px; }
             .about-section h2, .features-section h2, .reviews-section h2 { font-size: 2rem; }
             .menu-header h2 { font-size: 2.2rem; }
@@ -1090,6 +1091,7 @@ header {
             .bonus-card-button { flex-direction: column; text-align: center; }
             .bonus-card-text h4 { font-size: 1rem; }
             .cart-page-total { font-size: 1.2rem; padding: 15px; }
+            .logo-image { height: 50px; }
         }
     </style>
 </head>
@@ -1134,13 +1136,13 @@ header {
     <!-- КНОПКА "НАВЕРХ" -->
     <div class="scroll-to-top" id="scrollToTop"><i class="fas fa-chevron-up"></i></div>
 
-    <!-- Шапка сайта -->
+    <!-- Шапка сайта с большим логотипом -->
     <header>
         <div class="container">
             <div class="header-content">
                 <div class="logo">
                     <div class="logo-image">
-                        <img src="img/img/logo-big.png" alt="Логотип">
+                        <img src="img/img/logo-big.png" alt="Логотип Шашлычной 'У Ахмеда'">
                     </div>
                     <div class="logo-text">
                         <h1>Шашлычная "У Ахмеда"</h1>
