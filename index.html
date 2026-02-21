@@ -65,7 +65,7 @@
             padding: 0 20px;
         }
 
-        /* Шапка сайта - с большим логотипом */
+        /* ========== ШАПКА С ЛОГОТИПОМ ПО ЦЕНТРУ ========== */
         header {
             background-color: var(--main-color);
             padding: 15px 0;
@@ -77,17 +77,14 @@
 
         .header-content {
             display: flex;
-            justify-content: space-between;
+            justify-content: center;
             align-items: center;
         }
 
         .logo {
             display: flex;
+            justify-content: center;
             align-items: center;
-            gap: 20px;
-            width: 100%;
-            max-width: 800px;
-            margin: 0 auto;
         }
 
         .logo-image {
@@ -98,7 +95,6 @@
             align-items: center;
             justify-content: center;
             overflow: hidden;
-            flex-shrink: 0;
         }
 
         .logo-image img {
@@ -110,53 +106,6 @@
             border-radius: 10px;
         }
 
-        .logo-text {
-            display: block;
-            flex-grow: 1;
-        }
-
-        .logo-text h1 {
-            font-size: 1.8rem;
-            color: var(--dark-color);
-            line-height: 1.2;
-            margin-bottom: 5px;
-        }
-
-        .logo-text p {
-            font-size: 1rem;
-            color: var(--text-color);
-            font-style: italic;
-        }
-
-        /* Адаптивность для мобильных */
-        @media (max-width: 768px) {
-            .logo-image {
-                height: 60px;
-            }
-            .logo-text h1 {
-                font-size: 1.4rem;
-            }
-            .logo-text p {
-                font-size: 0.9rem;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .logo {
-                gap: 10px;
-            }
-            .logo-image {
-                height: 50px;
-            }
-            .logo-text h1 {
-                font-size: 1.1rem;
-            }
-            .logo-text p {
-                font-size: 0.8rem;
-            }
-        }
-
-        /* Остальные стили без изменений... */
         /* ========== СТИЛИ ФОРМ ========== */
         .form-group {
             margin-bottom: 20px;
@@ -608,7 +557,7 @@
         }
         .add-to-cart:hover { background-color: #f5bf7d; transform: translateY(-2px); }
 
-        /* ========== СТРАНИЦА КОРЗИНЫ ========== */
+        /* ========== СТРАНИЦА КОРЗИНЫ (С ОТСТУПАМИ) ========== */
         .cart-page-content { 
             padding: 20px; 
         }
@@ -861,7 +810,7 @@
         .qr-code-container.show { text-align: center; margin-top: 15px; }
         .qr-code-image { width: 120px; height: 120px; object-fit: contain; border-radius: 10px; }
         
-        /* ========== ИСПРАВЛЕННАЯ КНОПКА ОЦЕНКИ ========== */
+        /* ========== КРАСИВАЯ КНОПКА ОЦЕНКИ ========== */
         .received-btn {
             background: linear-gradient(135deg, var(--dark-color) 0%, #7a4f29 100%);
             color: white;
@@ -1072,8 +1021,9 @@
         /* Адаптивность */
         @media (max-width: 768px) {
             body { padding-bottom: 65px; }
-            .logo-text { display: block; }
-            .logo-image { height: 60px; }
+            .logo-image {
+                height: 60px;
+            }
             .banner-carousel { height: 40vh; min-height: 250px; }
             .about-section h2, .features-section h2, .reviews-section h2 { font-size: 2rem; }
             .menu-header h2 { font-size: 2.2rem; }
@@ -1085,15 +1035,20 @@
             .cart-page-item { padding: 12px; }
         }
         @media (max-width: 480px) {
+            .logo-image {
+                height: 50px;
+            }
             .banner-carousel { height: 35vh; min-height: 200px; }
             .about-section, .contact-section { padding: 20px; }
             .features-grid, .reviews-grid, .menu-grid { grid-template-columns: 1fr; }
             .bonus-card-button { flex-direction: column; text-align: center; }
             .bonus-card-text h4 { font-size: 1rem; }
             .cart-page-total { font-size: 1.2rem; padding: 15px; }
-            .logo-image { height: 50px; }
         }
     </style>
+    
+    <!-- Скрипт для Яндекс Формы -->
+    <script src="https://forms.yandex.ru/_static/embed.js"></script>
 </head>
 <body>
     <!-- ЗАГРУЗОЧНЫЙ ЭКРАН -->
@@ -1136,17 +1091,13 @@
     <!-- КНОПКА "НАВЕРХ" -->
     <div class="scroll-to-top" id="scrollToTop"><i class="fas fa-chevron-up"></i></div>
 
-    <!-- Шапка сайта с большим логотипом -->
+    <!-- ШАПКА ТОЛЬКО С ЛОГОТИПОМ ПО ЦЕНТРУ -->
     <header>
         <div class="container">
             <div class="header-content">
                 <div class="logo">
                     <div class="logo-image">
                         <img src="img/img/logo-big.png" alt="Логотип Шашлычной 'У Ахмеда'">
-                    </div>
-                    <div class="logo-text">
-                        <h1>Шашлычная "У Ахмеда"</h1>
-                        <p>Открой для себя мир протухшего шашлыка</p>
                     </div>
                 </div>
             </div>
@@ -1219,7 +1170,7 @@
             </div>
         </div>
 
-        <!-- СТРАНИЦА КОРЗИНА -->
+        <!-- СТРАНИЦА КОРЗИНА (С ОТСТУПАМИ) -->
         <div id="cart-page" class="page">
             <div class="container cart-page-content">
                 <h2 class="section-title">Ваша корзина</h2>
@@ -1281,14 +1232,13 @@
                 <div class="orders-container" id="ordersContainer"></div>
             </div>
 
-            <!-- Панель Объявлений (с новым объявлением) -->
+            <!-- Панель Объявлений -->
             <div class="more-content-panel" id="moreAnnouncementPanel">
                 <div class="announcement-card pinned">
                     <div class="pinned-icon"><i class="fas fa-thumbtack"></i></div>
                     <div class="announcement-title">Подпишитесь на наш ИТД канал</div>
                     <div class="announcement-text"><a href="https://итд.com/uahmeda52" target="_blank">итд.com/uahmeda52</a></div>
                 </div>
-                <!-- НОВОЕ ОБЪЯВЛЕНИЕ от 21 февраля -->
                 <div class="announcement-card">
                     <div class="announcement-title">Изменения от 21 февраля</div>
                     <div class="announcement-text">переработан дизайн навигации</div>
@@ -1402,9 +1352,6 @@
         </div>
     </footer>
 
-    <!-- Скрипт для Яндекс Формы -->
-    <script src="https://forms.yandex.ru/_static/embed.js"></script>
-    
     <script>
         // ========== ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ==========
         let currentPage = 'home';
