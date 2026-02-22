@@ -40,14 +40,40 @@
             50% { transform: scale(1.05); opacity: 0.8; }
         }
 
-        @keyframes float {
-            0%, 100% { transform: translateY(0px) translateX(-50%); }
-            50% { transform: translateY(-5px) translateX(-50%); }
+        /* Анимация гравитации для футера */
+        @keyframes gravity {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            20% { transform: translate(calc(var(--x) * 1px), calc(var(--y) * 1px)) rotate(calc(var(--r) * 1deg)); }
+            40% { transform: translate(calc(var(--x2) * 1px), calc(var(--y2) * 1px)) rotate(calc(var(--r2) * 1deg)); }
+            60% { transform: translate(calc(var(--x3) * 1px), calc(var(--y3) * 1px)) rotate(calc(var(--r3) * 1deg)); }
+            80% { transform: translate(calc(var(--x4) * 1px), calc(var(--y4) * 1px)) rotate(calc(var(--r4) * 1deg)); }
+            100% { transform: translate(0, 0) rotate(0deg); }
         }
 
-        @keyframes glow {
-            0%, 100% { box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(255, 255, 255, 0.6) inset; }
-            50% { box-shadow: 0 15px 40px rgba(92, 61, 30, 0.25), 0 0 0 2px #fccd97 inset; }
+        .gravity-active {
+            animation: gravity 2s ease-in-out forwards;
+        }
+
+        /* Анимация падения ахмедиков */
+        @keyframes fall {
+            0% {
+                transform: translateY(-100vh) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        .ahmedik-fall {
+            position: fixed;
+            width: 40px;
+            height: 40px;
+            pointer-events: none;
+            z-index: 9999;
+            animation: fall 2s linear forwards;
+            filter: drop-shadow(0 0 10px var(--main-color));
         }
 
         /* ========== ОСНОВНЫЕ СТИЛИ ========== */
@@ -56,6 +82,7 @@
             padding: 0;
             box-sizing: border-box;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            transition: all 0.3s ease;
         }
 
         :root {
@@ -434,7 +461,7 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* ========== НИЖНЕЕ НАВИГАЦИОННОЕ МЕНЮ - ANIMATED LIQUID GLASS ========== */
+        /* ========== НИЖНЕЕ НАВИГАЦИОННОЕ МЕНЮ - С ПЛАШКОЙ ========== */
         .bottom-nav {
             position: fixed;
             bottom: 20px;
@@ -448,30 +475,18 @@
             display: flex;
             justify-content: space-around;
             align-items: center;
-            padding: 12px 10px 16px;
+            padding: 8px 10px;
             box-shadow: var(--glass-shadow), 0 0 0 1px var(--glass-border) inset;
             z-index: 1000;
             border-radius: 40px;
             border: 1px solid var(--glass-border);
-            animation: float 3s ease-in-out infinite, glow 4s ease-in-out infinite;
             transition: all 0.3s ease;
         }
 
         .bottom-nav:hover {
-            animation: none;
             transform: translateX(-50%) scale(1.02);
             box-shadow: 0 15px 40px rgba(92, 61, 30, 0.3), 0 0 0 2px var(--main-color) inset;
             background: rgba(255, 255, 255, 0.8);
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0px) translateX(-50%); }
-            50% { transform: translateY(-5px) translateX(-50%); }
-        }
-
-        @keyframes glow {
-            0%, 100% { box-shadow: var(--glass-shadow), 0 0 0 1px var(--glass-border) inset; }
-            50% { box-shadow: 0 15px 40px rgba(92, 61, 30, 0.25), 0 0 0 2px var(--main-color) inset; }
         }
 
         .nav-item {
@@ -484,32 +499,45 @@
             color: rgba(92, 61, 30, 0.7);
             cursor: pointer;
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            padding: 5px 12px;
+            padding: 8px 16px;
             border-radius: 30px;
             flex: 1;
-            max-width: 80px;
+            max-width: 100px;
             position: relative;
             text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5);
             overflow: hidden;
+            z-index: 2;
         }
 
-        .nav-item::before {
+        /* Плавающая плашка */
+        .nav-item.active::before {
             content: '';
             position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            border-radius: 50%;
-            background: rgba(252, 205, 151, 0.3);
-            transform: translate(-50%, -50%);
-            transition: width 0.5s ease, height 0.5s ease;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--main-color), #f5b56c);
+            border-radius: 30px;
             z-index: -1;
+            box-shadow: 0 4px 15px rgba(252, 205, 151, 0.5);
+            animation: slideIn 0.3s ease, glow 2s ease-in-out infinite;
         }
 
-        .nav-item:hover::before {
-            width: 150px;
-            height: 150px;
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 4px 15px rgba(252, 205, 151, 0.5); }
+            50% { box-shadow: 0 8px 25px rgba(252, 205, 151, 0.8); }
         }
 
         .nav-item i {
@@ -517,36 +545,20 @@
             margin-bottom: 3px;
             filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
             transition: all 0.3s ease;
-        }
-
-        .nav-item:hover i {
-            transform: translateY(-3px) scale(1.2);
-            color: var(--dark-color);
+            position: relative;
+            z-index: 1;
         }
 
         .nav-item span {
             transition: all 0.3s ease;
-        }
-
-        .nav-item:hover span {
-            transform: translateY(2px);
-            color: var(--dark-color);
-            font-weight: 600;
+            position: relative;
+            z-index: 1;
+            font-weight: 500;
         }
 
         .nav-item.active {
             color: var(--dark-color);
             font-weight: 600;
-            background: rgba(252, 205, 151, 0.4);
-            backdrop-filter: blur(5px);
-            -webkit-backdrop-filter: blur(5px);
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-            animation: activePulse 2s ease-in-out infinite;
-        }
-
-        @keyframes activePulse {
-            0%, 100% { background: rgba(252, 205, 151, 0.4); }
-            50% { background: rgba(252, 205, 151, 0.6); }
         }
 
         .nav-item.active i {
@@ -563,13 +575,13 @@
 
         .nav-item .cart-count-badge {
             position: absolute;
-            top: 0px;
-            right: 10px;
+            top: -5px;
+            right: 5px;
             background-color: var(--dark-color);
             color: white;
             border-radius: 50%;
-            width: 18px;
-            height: 18px;
+            width: 20px;
+            height: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -578,6 +590,7 @@
             box-shadow: 0 2px 5px rgba(0,0,0,0.2);
             border: 2px solid white;
             animation: badgePulse 1.5s ease-in-out infinite;
+            z-index: 3;
         }
 
         @keyframes badgePulse {
@@ -1479,11 +1492,41 @@
             padding: 30px 0 20px;
             text-align: center;
             margin-top: 40px;
+            cursor: pointer;
+            transition: all 0.3s ease;
         }
+        
+        footer:hover {
+            background-color: #6a4a2a;
+        }
+        
         .footer-logo-container { margin-bottom: 15px; }
-        .footer-logo { height: 70px; width: 70px; border-radius: 50%; overflow: hidden; margin: 0 auto 10px; }
-        .footer-logo img { width: 100%; height: 100%; object-fit: cover; }
-        .itd-button { display: inline-block; width: 45px; height: 45px; border-radius: 50%; background-color: white; margin: 10px; overflow: hidden; transition: all 0.3s ease; }
+        .footer-logo { 
+            height: 70px; 
+            width: 70px; 
+            border-radius: 50%; 
+            overflow: hidden; 
+            margin: 0 auto 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .footer-logo img { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: cover;
+            transition: all 0.3s ease;
+        }
+        
+        .itd-button { 
+            display: inline-block; 
+            width: 45px; 
+            height: 45px; 
+            border-radius: 50%; 
+            background-color: white; 
+            margin: 10px; 
+            overflow: hidden; 
+            transition: all 0.3s ease; 
+        }
         .itd-button:hover { transform: scale(1.1) rotate(5deg); }
         .itd-button img { width: 100%; height: 100%; object-fit: contain; padding: 8px; }
         .footer-disclaimer { margin-top: 20px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.2); font-size: 0.85rem; }
@@ -1506,8 +1549,11 @@
             .bottom-nav {
                 bottom: 15px;
                 width: calc(100% - 30px);
-                padding: 10px 8px 14px;
+                padding: 6px 8px;
                 border-radius: 35px;
+            }
+            .nav-item {
+                padding: 6px 12px;
             }
         }
         @media (max-width: 480px) {
@@ -1525,7 +1571,10 @@
                 bottom: 10px;
                 width: calc(100% - 20px);
                 border-radius: 30px;
-                padding: 8px 5px 12px;
+                padding: 5px 5px;
+            }
+            .nav-item {
+                padding: 5px 8px;
             }
             .nav-item i {
                 font-size: 1.3rem;
@@ -1537,6 +1586,9 @@
     <script src="https://forms.yandex.ru/_static/embed.js"></script>
 </head>
 <body>
+    <!-- Контейнер для падающих ахмедиков -->
+    <div id="falling-ahmediks-container" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999;"></div>
+
     <!-- ЗАГРУЗОЧНЫЙ ЭКРАН -->
     <div class="loading-screen" id="loadingScreen">
         <img src="img/img/loading.gif" alt="Загрузка" class="loading-gif">
@@ -1726,9 +1778,9 @@
                     <div class="announcement-text"><a href="https://итд.com/uahmeda52" target="_blank">итд.com/uahmeda52</a></div>
                 </div>
                 <div class="announcement-card">
-                    <div class="announcement-title">Изменения от 21.02.2026</div>
-                    <div class="announcement-text">Переработан дизайн навигации, добавлены анимации и эффект Liquid Glass, изменены стили некоторых элементов. И да гуля я тя упью када нибудь</div>
-                    <div class="announcement-date">21 февраля 2026 г.</div>
+                    <div class="announcement-title">Изменения от 21 февраля</div>
+                    <div class="announcement-text">переработан дизайн навигации</div>
+                    <div class="announcement-date">21.02.2026</div>
                 </div>
                 <div class="announcement-card">
                     <div class="announcement-title">Изменения от 18.02.2026</div>
@@ -1752,7 +1804,7 @@
         </div>
     </div>
 
-    <!-- НИЖНЕЕ НАВИГАЦИОННОЕ МЕНЮ - LIQUID GLASS -->
+    <!-- НИЖНЕЕ НАВИГАЦИОННОЕ МЕНЮ - С ПЛАШКОЙ -->
     <nav class="bottom-nav">
         <button class="nav-item active" data-page="home"><i class="fas fa-home"></i><span>Главная</span></button>
         <button class="nav-item" data-page="menu"><i class="fas fa-book"></i><span>Меню</span></button>
@@ -1820,11 +1872,11 @@
     </div>
 
     <!-- Футер -->
-    <footer>
+    <footer id="footer">
         <div class="container">
             <div class="footer-content">
                 <div class="footer-logo-container">
-                    <div class="footer-logo"><img src="img/img/logo.png" alt="Логотип"></div>
+                    <div class="footer-logo"><img src="img/img/logo.png" alt="Логотип" id="footer-logo-img"></div>
                     <p style="font-size: 1.2rem;">Шашлычная "У Ахмеда"</p>
                 </div>
                 <div class="footer-info">
@@ -1913,6 +1965,10 @@
         const ratingOrderIdInput = document.getElementById('ratingOrderId');
         const submitRatingBtn = document.getElementById('submitRating');
 
+        // Элементы для гравитации
+        const footer = document.getElementById('footer');
+        const footerLogo = document.getElementById('footer-logo-img');
+
         // ========== ДАННЫЕ МЕНЮ ==========
         const menuData = {
             shashlik: [ { id: 2, name: "Шашлык из курицы", description: "Сочные куриные бедра на мангале", price: 280, image: "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=600&h=400&fit=crop" }, { id: 3, name: "Люля-кебаб из баранины", description: "Традиционный кавказский люля-кебаб", price: 420, image: "https://images.unsplash.com/photo-1529193591184-b1d58069ecdd?w=600&h=400&fit=crop" }, { id: 4, name: "Шашлык из говядины", description: "Пряная говядина на углях", price: 380, image: "https://images.unsplash.com/photo-1544025162-d76694265947?w=600&h=400&fit=crop" }, { id: 18, name: "Лаваш", description: "Свежий тонкий лаваш для шашлыка", price: 80, image: "https://images.unsplash.com/photo-1641664734521-78b8c8f5e9b2?w=600&h=400&fit=crop" } ],
@@ -1920,6 +1976,80 @@
             sauces: [ { id: 16, name: "Сырный соус", description: "Ароматный сливочно-сырный соус с травами", price: 95, image: "https://images.unsplash.com/photo-1563379926898-05f4575a45d8?w=600&h=400&fit=crop&auto=format" }, { id: 17, name: "Кетчуп домашний", description: "Натуральный томатный кетчуп с пряностями", price: 65, image: "https://images.unsplash.com/photo-1576193492451-bc6d703a5b3b?w=600&h=400&fit=crop&auto=format" }, { id: 19, name: "Чесночный соус", description: "Ароматный соус на основе чеснока и сметаны", price: 75, image: "https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=600&h=400&fit=crop" } ],
             drinks: [ { id: 11, name: "Лимонад домашний", description: "Освежающий лимонад с мятой и лимоном", price: 120, image: "https://images.unsplash.com/photo-1621506289937-a8e4df240d0b?w=600&h=400&fit=crop" }, { id: 14, name: "Чай черный", description: "Ароматный черный чай с травами", price: 70, image: "https://images.unsplash.com/photo-1568649929103-28ffbefaca1e?w=600&h=400&fit=crop&auto=format" }, { id: 15, name: "Кофе по-восточному", description: "Ароматный кофе с кардамоном", price: 150, image: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=600&h=400&fit=crop" }, { id: 20, name: "Чай с лимоном", description: "Ароматный чай с долькой лимона", price: 85, image: "https://images.unsplash.com/photo-1567337560842-9d2d11f9b1b7?w=600&h=400&fit=crop" }, { id: 21, name: "Зелёный чай", description: "Освежающий зеленый чай с жасмином", price: 90, image: "https://images.unsplash.com/photo-1561047029-3000c68339ca?w=600&h=400&fit=crop" } ]
         };
+
+        // ========== ФУНКЦИЯ ДЛЯ ПАДЕНИЯ АХМЕДИКОВ ==========
+        function createFallingAhmediks(count = 20) {
+            const container = document.getElementById('falling-ahmediks-container');
+            
+            for (let i = 0; i < count; i++) {
+                const ahmedik = document.createElement('img');
+                ahmedik.src = 'img/img/ahmedik.png';
+                ahmedik.className = 'ahmedik-fall';
+                
+                // Случайная позиция по горизонтали
+                const left = Math.random() * 100;
+                // Случайная задержка начала анимации
+                const delay = Math.random() * 1.5;
+                // Случайный размер
+                const size = 30 + Math.random() * 40;
+                
+                ahmedik.style.left = left + '%';
+                ahmedik.style.animationDelay = delay + 's';
+                ahmedik.style.width = size + 'px';
+                ahmedik.style.height = size + 'px';
+                
+                // Добавляем небольшую вариацию в анимацию
+                ahmedik.style.filter = `hue-rotate(${Math.random() * 30}deg) drop-shadow(0 0 ${5 + Math.random() * 10}px var(--main-color))`;
+                
+                container.appendChild(ahmedik);
+                
+                // Удаляем элемент после завершения анимации
+                setTimeout(() => {
+                    if (ahmedik.parentNode) {
+                        ahmedik.remove();
+                    }
+                }, 2000 + delay * 1000);
+            }
+        }
+
+        // ========== ФУНКЦИЯ ДЛЯ ЭФФЕКТА ГРАВИТАЦИИ ==========
+        function applyGravityEffect() {
+            // Получаем все элементы, которые будем анимировать
+            const elements = document.querySelectorAll('header, .banner-carousel, .about-section, .features-section, .reviews-section, .menu-header, .categories, .menu-section, .cart-page-content, footer, .bottom-nav, .more-overlay, .more-panel, .rating-modal-overlay, .cart-notification, .scroll-to-top');
+            
+            elements.forEach(el => {
+                // Генерируем случайные значения для анимации
+                const randomValues = {
+                    '--x': (Math.random() - 0.5) * 200,
+                    '--y': (Math.random() - 0.5) * 200,
+                    '--r': (Math.random() - 0.5) * 360,
+                    '--x2': (Math.random() - 0.5) * 300,
+                    '--y2': (Math.random() - 0.5) * 300,
+                    '--r2': (Math.random() - 0.5) * 720,
+                    '--x3': (Math.random() - 0.5) * 250,
+                    '--y3': (Math.random() - 0.5) * 250,
+                    '--r3': (Math.random() - 0.5) * 540,
+                    '--x4': (Math.random() - 0.5) * 200,
+                    '--y4': (Math.random() - 0.5) * 200,
+                    '--r4': (Math.random() - 0.5) * 360,
+                };
+                
+                // Применяем переменные к элементу
+                Object.keys(randomValues).forEach(key => {
+                    el.style.setProperty(key, randomValues[key]);
+                });
+                
+                // Добавляем класс с анимацией
+                el.classList.add('gravity-active');
+            });
+            
+            // Убираем класс после завершения анимации
+            setTimeout(() => {
+                elements.forEach(el => {
+                    el.classList.remove('gravity-active');
+                });
+            }, 2000);
+        }
 
         // ========== ИНИЦИАЛИЗАЦИЯ ==========
         setTimeout(() => loadingScreen.classList.add('hidden'), 1000);
@@ -1960,9 +2090,16 @@
             currentPage = pageId;
             pages.forEach(p => p.classList.remove('active'));
             document.getElementById(`${pageId}-page`).classList.add('active');
+            
+            // Обновляем активный класс в навигации
             navItems.forEach(item => {
-                item.classList.toggle('active', item.dataset.page === pageId);
+                if (item.dataset.page === pageId) {
+                    item.classList.add('active');
+                } else {
+                    item.classList.remove('active');
+                }
             });
+            
             if (pageId === 'cart') renderCartPage();
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
@@ -2051,8 +2188,29 @@
         // ========== БОНУСНАЯ КАРТА ==========
         function saveBonusCardToStorage() { if (bonusCard) localStorage.setItem('ahmedBonusCard_' + userId, JSON.stringify(bonusCard)); else localStorage.removeItem('ahmedBonusCard_' + userId); }
         function loadBonusCardFromStorage() { const saved = localStorage.getItem('ahmedBonusCard_' + userId); if (saved) bonusCard = JSON.parse(saved); }
-        function addBonusPoints(points) { if (!bonusCard) return false; bonusCard.balance += points; saveBonusCardToStorage(); updateBonusDisplay(); return true; }
-        function deductBonusPoints(points) { if (!bonusCard || bonusCard.balance < points) return false; bonusCard.balance -= points; if (bonusCard.firstUse) bonusCard.firstUse = false; saveBonusCardToStorage(); updateBonusDisplay(); return true; }
+        function addBonusPoints(points) { 
+            if (!bonusCard) return false; 
+            bonusCard.balance += points; 
+            saveBonusCardToStorage(); 
+            updateBonusDisplay(); 
+            
+            // Запускаем анимацию падения ахмедиков при начислении бонусов
+            createFallingAhmediks(15);
+            
+            return true; 
+        }
+        function deductBonusPoints(points) { 
+            if (!bonusCard || bonusCard.balance < points) return false; 
+            bonusCard.balance -= points; 
+            if (bonusCard.firstUse) bonusCard.firstUse = false; 
+            saveBonusCardToStorage(); 
+            updateBonusDisplay(); 
+            
+            // Запускаем анимацию падения ахмедиков при списании бонусов
+            createFallingAhmediks(10);
+            
+            return true; 
+        }
 
         function updateBonusDisplay() {
             if (!bonusBalanceContainer) return;
@@ -2092,11 +2250,15 @@
             if (existingCard) {
                 bonusCard = existingCard;
                 alert(`Карта ${cardNumber} уже активирована. Баланс: ${bonusCard.balance} ахмедиков`);
+                // Запускаем анимацию при активации карты
+                createFallingAhmediks(8);
             } else {
                 bonusCard = { id: 'bonus_' + Date.now(), fullName, email, cardNumber, balance: 0, firstUse: true, createdAt: new Date().getTime(), userId: userId };
                 savedBonusCards.push(bonusCard);
                 localStorage.setItem('ahmedBonusCards', JSON.stringify(savedBonusCards));
                 alert('Бонусная карта успешно активирована!');
+                // Запускаем анимацию при активации карты
+                createFallingAhmediks(12);
             }
             saveBonusCardToStorage();
             updateBonusDisplay();
@@ -2331,6 +2493,9 @@
         // ========== КНОПКА НАВЕРХ ==========
         window.addEventListener('scroll', () => scrollToTopBtn.classList.toggle('visible', window.scrollY > 300));
         scrollToTopBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+        // ========== ОБРАБОТЧИК ДЛЯ ФУТЕРА (ГРАВИТАЦИЯ) ==========
+        footer.addEventListener('click', applyGravityEffect);
 
         // ========== ЗАГРУЗКА ДАННЫХ ==========
         loadCartFromStorage();
