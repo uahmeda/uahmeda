@@ -54,14 +54,14 @@
             animation: gravity 2s ease-in-out forwards;
         }
 
-        /* Анимация падения ахмедиков */
+        /* Анимация падения ахмедиков - ИСПРАВЛЕНО */
         @keyframes fall {
             0% {
-                transform: translateY(-100vh) rotate(0deg);
+                transform: translateY(-20vh) rotate(0deg);
                 opacity: 1;
             }
             100% {
-                transform: translateY(100vh) rotate(720deg);
+                transform: translateY(120vh) rotate(720deg);
                 opacity: 0;
             }
         }
@@ -74,6 +74,7 @@
             z-index: 9999;
             animation: fall 2s linear forwards;
             filter: drop-shadow(0 0 10px var(--main-color));
+            top: -10vh; /* Начинаем чуть выше видимой области */
         }
 
         /* ========== ОСНОВНЫЕ СТИЛИ ========== */
@@ -459,6 +460,84 @@
         @keyframes pageFade {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ========== СТИЛИ ДЛЯ ПОИСКА ========== */
+        .search-container {
+            margin: 20px 0 30px;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 16px 20px 16px 55px;
+            border: 2px solid var(--main-color);
+            border-radius: 50px;
+            font-size: 1.1rem;
+            background-color: white;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(252, 205, 151, 0.3), var(--shadow);
+            transform: scale(1.02);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--dark-color);
+            font-size: 1.3rem;
+            pointer-events: none;
+        }
+
+        .clear-search {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #999;
+            font-size: 1.3rem;
+            cursor: pointer;
+            display: none;
+            transition: all 0.3s ease;
+        }
+
+        .clear-search:hover {
+            color: var(--dark-color);
+            transform: translateY(-50%) scale(1.2);
+        }
+
+        .clear-search.visible {
+            display: block;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 50px;
+            font-size: 1.3rem;
+            color: #999;
+            background-color: #f9f9f9;
+            border-radius: 20px;
+            margin: 30px 0;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .no-results i {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            color: var(--main-color);
+        }
+
+        /* Скрываем заголовки категорий при поиске */
+        .menu-section.search-mode .section-title {
+            display: none;
         }
 
         /* ========== НИЖНЕЕ НАВИГАЦИОННОЕ МЕНЮ - С ПЛАШКОЙ ========== */
@@ -1691,8 +1770,15 @@
             <div class="container">
                 <section class="menu-header">
                     <h2>Меню</h2>
-                    <p>Выберите категорию и наслаждайтесь нашими лучшими блюдами</p>
+                    <p>Выберите категорию или найдите блюдо по названию</p>
                 </section>
+
+                <!-- ПОИСК ТОВАРОВ -->
+                <div class="search-container">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" class="search-input" id="searchInput" placeholder="Найти блюдо...">
+                    <button class="clear-search" id="clearSearch">&times;</button>
+                </div>
 
                 <div class="categories">
                     <button class="category-btn active" data-category="shashlik">Шашлык</button>
@@ -1705,6 +1791,12 @@
                 <section id="asia" class="menu-section"><h2 class="section-title">Сочная азия</h2><div class="menu-grid" id="asiaGrid"></div></section>
                 <section id="sauces" class="menu-section"><h2 class="section-title">Соусы</h2><div class="menu-grid" id="saucesGrid"></div></section>
                 <section id="drinks" class="menu-section"><h2 class="section-title">Напитки</h2><div class="menu-grid" id="drinksGrid"></div></section>
+                
+                <!-- Сообщение "Ничего не найдено" -->
+                <div class="no-results" id="noResultsMessage" style="display: none;">
+                    <i class="fas fa-search"></i>
+                    <p>По вашему запросу ничего не найдено</p>
+                </div>
             </div>
         </div>
 
@@ -1770,22 +1862,33 @@
                 <div class="orders-container" id="ordersContainer"></div>
             </div>
 
-            <!-- Панель Объявлений -->
+            <!-- Панель Объявлений - ОБНОВЛЕНО -->
             <div class="more-content-panel" id="moreAnnouncementPanel">
                 <div class="announcement-card pinned">
                     <div class="pinned-icon"><i class="fas fa-thumbtack"></i></div>
                     <div class="announcement-title">Подпишитесь на наш ИТД канал</div>
                     <div class="announcement-text"><a href="https://итд.com/uahmeda52" target="_blank">итд.com/uahmeda52</a></div>
                 </div>
+                
+                <!-- Новое объявление от 23.02.2026 -->
                 <div class="announcement-card">
-                    <div class="announcement-title">Изменения от 21 февраля</div>
-                    <div class="announcement-text">переработан дизайн навигации</div>
+                    <div class="announcement-title">Изменения от 23 февраля 2026</div>
+                    <div class="announcement-text">Добавлен эффект «Дождь из ахмедиков» при использовании бонусной карты, реализован поиск товаров в меню</div>
+                    <div class="announcement-date">23.02.2026</div>
+                </div>
+                
+                <!-- Обновленное объявление от 21.02.2026 -->
+                <div class="announcement-card">
+                    <div class="announcement-title">Изменения от 21 февраля 2026</div>
+                    <div class="announcement-text">Переработан дизайн навигации, добавлены анимации и изменены стили некоторых элементов</div>
                     <div class="announcement-date">21.02.2026</div>
                 </div>
+                
+                <!-- Обновленное объявление от 18.02.2026 -->
                 <div class="announcement-card">
-                    <div class="announcement-title">Изменения от 18.02.2026</div>
+                    <div class="announcement-title">Изменения от 18 февраля 2026</div>
                     <div class="announcement-text">Добавлено раскрывающееся меню, вкладка «Объявления»</div>
-                    <div class="announcement-date">18 февраля 2026 г.</div>
+                    <div class="announcement-date">18.02.2026</div>
                 </div>
             </div>
 
@@ -1969,46 +2072,75 @@
         const footer = document.getElementById('footer');
         const footerLogo = document.getElementById('footer-logo-img');
 
+        // Элементы поиска
+        const searchInput = document.getElementById('searchInput');
+        const clearSearch = document.getElementById('clearSearch');
+        const noResultsMessage = document.getElementById('noResultsMessage');
+        const menuSections = document.querySelectorAll('.menu-section');
+        const categoryBtns = document.querySelectorAll('.category-btn');
+
         // ========== ДАННЫЕ МЕНЮ ==========
         const menuData = {
-            shashlik: [ { id: 2, name: "Шашлык из курицы", description: "Сочные куриные бедра на мангале", price: 280, image: "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=600&h=400&fit=crop" }, { id: 3, name: "Люля-кебаб из баранины", description: "Традиционный кавказский люля-кебаб", price: 420, image: "https://images.unsplash.com/photo-1529193591184-b1d58069ecdd?w=600&h=400&fit=crop" }, { id: 4, name: "Шашлык из говядины", description: "Пряная говядина на углях", price: 380, image: "https://images.unsplash.com/photo-1544025162-d76694265947?w=600&h=400&fit=crop" }, { id: 18, name: "Лаваш", description: "Свежий тонкий лаваш для шашлыка", price: 80, image: "https://images.unsplash.com/photo-1641664734521-78b8c8f5e9b2?w=600&h=400&fit=crop" } ],
-            asia: [ { id: 30, name: "Бешбармак", description: "Традиционное казахское блюдо из мяса и теста", price: 450, image: "https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=600&h=400&fit=crop" }, { id: 31, name: "Баурсаки (3 штуки)", description: "Пышные жареные пончики по-казахски", price: 120, image: "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=600&h=400&fit=crop" }, { id: 32, name: "Плов по-узбекски", description: "Ароматный узбекский плов с бараниной", price: 380, image: "https://images.unsplash.com/photo-1563379926898-05f4575a45d8?w=600&h=400&fit=crop&auto=format" }, { id: 33, name: "Кумыс", description: "Традиционный кисломолочный напиток", price: 150, image: "https://images.unsplash.com/photo-1621506289937-a8e4df240d0b?w=600&h=400&fit=crop" }, { id: 34, name: "Эчпочмаки (3 штуки)", description: "Татарские треугольные пирожки с мясом", price: 180, image: "https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=600&h=400&fit=crop" }, { id: 35, name: "Чак-чак", description: "Восточная сладость из теста с медом", price: 200, image: "https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?w=600&h=400&fit=crop" } ],
-            sauces: [ { id: 16, name: "Сырный соус", description: "Ароматный сливочно-сырный соус с травами", price: 95, image: "https://images.unsplash.com/photo-1563379926898-05f4575a45d8?w=600&h=400&fit=crop&auto=format" }, { id: 17, name: "Кетчуп домашний", description: "Натуральный томатный кетчуп с пряностями", price: 65, image: "https://images.unsplash.com/photo-1576193492451-bc6d703a5b3b?w=600&h=400&fit=crop&auto=format" }, { id: 19, name: "Чесночный соус", description: "Ароматный соус на основе чеснока и сметаны", price: 75, image: "https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=600&h=400&fit=crop" } ],
-            drinks: [ { id: 11, name: "Лимонад домашний", description: "Освежающий лимонад с мятой и лимоном", price: 120, image: "https://images.unsplash.com/photo-1621506289937-a8e4df240d0b?w=600&h=400&fit=crop" }, { id: 14, name: "Чай черный", description: "Ароматный черный чай с травами", price: 70, image: "https://images.unsplash.com/photo-1568649929103-28ffbefaca1e?w=600&h=400&fit=crop&auto=format" }, { id: 15, name: "Кофе по-восточному", description: "Ароматный кофе с кардамоном", price: 150, image: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=600&h=400&fit=crop" }, { id: 20, name: "Чай с лимоном", description: "Ароматный чай с долькой лимона", price: 85, image: "https://images.unsplash.com/photo-1567337560842-9d2d11f9b1b7?w=600&h=400&fit=crop" }, { id: 21, name: "Зелёный чай", description: "Освежающий зеленый чай с жасмином", price: 90, image: "https://images.unsplash.com/photo-1561047029-3000c68339ca?w=600&h=400&fit=crop" } ]
+            shashlik: [ 
+                { id: 2, name: "Шашлык из курицы", description: "Сочные куриные бедра на мангале", price: 280, image: "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=600&h=400&fit=crop" }, 
+                { id: 3, name: "Люля-кебаб из баранины", description: "Традиционный кавказский люля-кебаб", price: 420, image: "https://images.unsplash.com/photo-1529193591184-b1d58069ecdd?w=600&h=400&fit=crop" }, 
+                { id: 4, name: "Шашлык из говядины", description: "Пряная говядина на углях", price: 380, image: "https://images.unsplash.com/photo-1544025162-d76694265947?w=600&h=400&fit=crop" }, 
+                { id: 18, name: "Лаваш", description: "Свежий тонкий лаваш для шашлыка", price: 80, image: "https://images.unsplash.com/photo-1641664734521-78b8c8f5e9b2?w=600&h=400&fit=crop" } 
+            ],
+            asia: [ 
+                { id: 30, name: "Бешбармак", description: "Традиционное казахское блюдо из мяса и теста", price: 450, image: "https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=600&h=400&fit=crop" }, 
+                { id: 31, name: "Баурсаки (3 штуки)", description: "Пышные жареные пончики по-казахски", price: 120, image: "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=600&h=400&fit=crop" }, 
+                { id: 32, name: "Плов по-узбекски", description: "Ароматный узбекский плов с бараниной", price: 380, image: "https://images.unsplash.com/photo-1563379926898-05f4575a45d8?w=600&h=400&fit=crop&auto=format" }, 
+                { id: 33, name: "Кумыс", description: "Традиционный кисломолочный напиток", price: 150, image: "https://images.unsplash.com/photo-1621506289937-a8e4df240d0b?w=600&h=400&fit=crop" }, 
+                { id: 34, name: "Эчпочмаки (3 штуки)", description: "Татарские треугольные пирожки с мясом", price: 180, image: "https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=600&h=400&fit=crop" }, 
+                { id: 35, name: "Чак-чак", description: "Восточная сладость из теста с медом", price: 200, image: "https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?w=600&h=400&fit=crop" } 
+            ],
+            sauces: [ 
+                { id: 16, name: "Сырный соус", description: "Ароматный сливочно-сырный соус с травами", price: 95, image: "https://images.unsplash.com/photo-1563379926898-05f4575a45d8?w=600&h=400&fit=crop&auto=format" }, 
+                { id: 17, name: "Кетчуп домашний", description: "Натуральный томатный кетчуп с пряностями", price: 65, image: "https://images.unsplash.com/photo-1576193492451-bc6d703a5b3b?w=600&h=400&fit=crop&auto=format" }, 
+                { id: 19, name: "Чесночный соус", description: "Ароматный соус на основе чеснока и сметаны", price: 75, image: "https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=600&h=400&fit=crop" } 
+            ],
+            drinks: [ 
+                { id: 11, name: "Лимонад домашний", description: "Освежающий лимонад с мятой и лимоном", price: 120, image: "https://images.unsplash.com/photo-1621506289937-a8e4df240d0b?w=600&h=400&fit=crop" }, 
+                { id: 14, name: "Чай черный", description: "Ароматный черный чай с травами", price: 70, image: "https://images.unsplash.com/photo-1568649929103-28ffbefaca1e?w=600&h=400&fit=crop&auto=format" }, 
+                { id: 15, name: "Кофе по-восточному", description: "Ароматный кофе с кардамоном", price: 150, image: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=600&h=400&fit=crop" }, 
+                { id: 20, name: "Чай с лимоном", description: "Ароматный чай с долькой лимона", price: 85, image: "https://images.unsplash.com/photo-1567337560842-9d2d11f9b1b7?w=600&h=400&fit=crop" }, 
+                { id: 21, name: "Зелёный чай", description: "Освежающий зеленый чай с жасмином", price: 90, image: "https://images.unsplash.com/photo-1561047029-3000c68339ca?w=600&h=400&fit=crop" } 
+            ]
         };
 
-        // ========== ФУНКЦИЯ ДЛЯ ПАДЕНИЯ АХМЕДИКОВ ==========
+        // ========== ФУНКЦИЯ ДЛЯ ПАДЕНИЯ АХМЕДИКОВ - ИСПРАВЛЕНО ==========
         function createFallingAhmediks(count = 20) {
             const container = document.getElementById('falling-ahmediks-container');
             
             for (let i = 0; i < count; i++) {
-                const ahmedik = document.createElement('img');
-                ahmedik.src = 'img/img/ahmedik.png';
-                ahmedik.className = 'ahmedik-fall';
-                
-                // Случайная позиция по горизонтали
-                const left = Math.random() * 100;
-                // Случайная задержка начала анимации
-                const delay = Math.random() * 1.5;
-                // Случайный размер
-                const size = 30 + Math.random() * 40;
-                
-                ahmedik.style.left = left + '%';
-                ahmedik.style.animationDelay = delay + 's';
-                ahmedik.style.width = size + 'px';
-                ahmedik.style.height = size + 'px';
-                
-                // Добавляем небольшую вариацию в анимацию
-                ahmedik.style.filter = `hue-rotate(${Math.random() * 30}deg) drop-shadow(0 0 ${5 + Math.random() * 10}px var(--main-color))`;
-                
-                container.appendChild(ahmedik);
-                
-                // Удаляем элемент после завершения анимации
+                // Создаем каждый ахмедик с небольшой задержкой, чтобы они не падали все сразу
                 setTimeout(() => {
-                    if (ahmedik.parentNode) {
-                        ahmedik.remove();
-                    }
-                }, 2000 + delay * 1000);
+                    const ahmedik = document.createElement('img');
+                    ahmedik.src = 'img/img/ahmedik.png';
+                    ahmedik.className = 'ahmedik-fall';
+                    
+                    // Случайная позиция по горизонтали
+                    const left = Math.random() * 100;
+                    // Случайный размер
+                    const size = 30 + Math.random() * 40;
+                    
+                    ahmedik.style.left = left + '%';
+                    ahmedik.style.width = size + 'px';
+                    ahmedik.style.height = size + 'px';
+                    
+                    // Добавляем небольшую вариацию в анимацию
+                    ahmedik.style.filter = `hue-rotate(${Math.random() * 30}deg) drop-shadow(0 0 ${5 + Math.random() * 10}px var(--main-color))`;
+                    
+                    container.appendChild(ahmedik);
+                    
+                    // Удаляем элемент после завершения анимации
+                    setTimeout(() => {
+                        if (ahmedik.parentNode) {
+                            ahmedik.remove();
+                        }
+                    }, 2000);
+                }, i * 50); // Задержка 50мс между каждым ахмедиком для эффекта "дождя"
             }
         }
 
@@ -2051,6 +2183,99 @@
             }, 2000);
         }
 
+        // ========== ФУНКЦИЯ ПОИСКА - ОБНОВЛЕНО ==========
+        function performSearch() {
+            const searchTerm = searchInput.value.toLowerCase().trim();
+            
+            // Показываем/скрываем кнопку очистки
+            if (searchTerm.length > 0) {
+                clearSearch.classList.add('visible');
+            } else {
+                clearSearch.classList.remove('visible');
+            }
+            
+            // Если поисковый запрос пустой, показываем все товары и заголовки категорий
+            if (searchTerm === '') {
+                // Показываем все секции меню
+                document.querySelectorAll('.menu-section').forEach(section => {
+                    section.classList.add('active');
+                });
+                
+                // Показываем все товары
+                document.querySelectorAll('.menu-item').forEach(item => {
+                    item.style.display = 'flex';
+                });
+                
+                // Убираем класс search-mode (показываем заголовки)
+                document.querySelectorAll('.menu-section').forEach(section => {
+                    section.classList.remove('search-mode');
+                });
+                
+                // Скрываем сообщение "ничего не найдено"
+                noResultsMessage.style.display = 'none';
+                return;
+            }
+            
+            // Добавляем класс search-mode ко всем секциям (скрываем заголовки)
+            document.querySelectorAll('.menu-section').forEach(section => {
+                section.classList.add('search-mode');
+            });
+            
+            // Поиск по всем товарам
+            let hasResults = false;
+            
+            document.querySelectorAll('.menu-item').forEach(item => {
+                const itemName = item.querySelector('.item-name').textContent.toLowerCase();
+                const itemDesc = item.querySelector('.item-description').textContent.toLowerCase();
+                
+                if (itemName.includes(searchTerm) || itemDesc.includes(searchTerm)) {
+                    item.style.display = 'flex';
+                    hasResults = true;
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+            
+            // Показываем все секции (чтобы скрытые товары были видны)
+            document.querySelectorAll('.menu-section').forEach(section => {
+                section.classList.add('active');
+            });
+            
+            // Показываем/скрываем сообщение "ничего не найдено"
+            if (!hasResults) {
+                noResultsMessage.style.display = 'block';
+            } else {
+                noResultsMessage.style.display = 'none';
+            }
+        }
+
+        // ========== СБРОС ПОИСКА - ОБНОВЛЕНО ==========
+        function resetSearch() {
+            searchInput.value = '';
+            clearSearch.classList.remove('visible');
+            noResultsMessage.style.display = 'none';
+            
+            // Возвращаем все товары
+            document.querySelectorAll('.menu-item').forEach(item => {
+                item.style.display = 'flex';
+            });
+            
+            // Убираем класс search-mode (показываем заголовки)
+            document.querySelectorAll('.menu-section').forEach(section => {
+                section.classList.remove('search-mode');
+            });
+            
+            // Возвращаем активную категорию
+            const activeCategory = document.querySelector('.category-btn.active').dataset.category;
+            document.querySelectorAll('.menu-section').forEach(section => {
+                if (section.id === activeCategory) {
+                    section.classList.add('active');
+                } else {
+                    section.classList.remove('active');
+                }
+            });
+        }
+
         // ========== ИНИЦИАЛИЗАЦИЯ ==========
         setTimeout(() => loadingScreen.classList.add('hidden'), 1000);
 
@@ -2078,12 +2303,19 @@
         slides[1]?.querySelector('img')?.addEventListener('click', () => { closeMorePanel(); openMorePanel(); showBonusInMore(); });
 
         // Категории меню
-        document.querySelectorAll('.category-btn').forEach(btn => btn.addEventListener('click', function() {
-            document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+        categoryBtns.forEach(btn => btn.addEventListener('click', function() {
+            // Сбрасываем поиск при переключении категории
+            resetSearch();
+            
+            categoryBtns.forEach(b => b.classList.remove('active'));
             this.classList.add('active');
-            document.querySelectorAll('.menu-section').forEach(s => s.classList.remove('active'));
+            menuSections.forEach(s => s.classList.remove('active'));
             document.getElementById(this.dataset.category).classList.add('active');
         }));
+
+        // Слушатели для поиска
+        searchInput.addEventListener('input', performSearch);
+        clearSearch.addEventListener('click', resetSearch);
 
         // ========== УПРАВЛЕНИЕ СТРАНИЦАМИ ==========
         function switchPage(pageId) {
@@ -2101,6 +2333,10 @@
             });
             
             if (pageId === 'cart') renderCartPage();
+            if (pageId === 'menu') {
+                // Сбрасываем поиск при переходе на страницу меню
+                resetSearch();
+            }
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
