@@ -2547,19 +2547,22 @@
             }
         };
 
-        window.logout = async function() {
-            try {
-                if (currentUser) {
-                    await saveUserDataToFirestore();
-                }
-                await signOut(auth);
-                resetLocalData();
-                showNotification('Выход', 'Вы вышли из аккаунта');
-                switchPage('home');
-            } catch (error) {
-                console.error('Ошибка выхода:', error);
-            }
-        };
+        // Делаем функцию выхода глобальной
+window.logout = async function() {
+    try {
+        // Сохраняем данные перед выходом
+        if (currentUser) {
+            await saveUserDataToFirestore();
+        }
+        await signOut(auth);
+        resetLocalData();
+        showNotification('Выход', 'Вы вышли из аккаунта');
+        switchPage('home');
+        closeProfilePanel(); // Закрываем панель если открыта
+    } catch (error) {
+        console.error('Ошибка выхода:', error);
+        showNotification('Ошибка выхода', error.message, 'error');
+};
 
         // Сброс локальных данных
         function resetLocalData() {
@@ -2611,66 +2614,66 @@
 
         // ========== ФУНКЦИИ ДЛЯ ПРОФИЛЯ ==========
         function renderProfilePage() {
-            const profileHeader = document.getElementById('profileHeader');
-            const profileMenu = document.getElementById('profileMenu');
-            
-            if (!profileHeader || !profileMenu) return;
-            
-            if (currentUser) {
-                profileHeader.innerHTML = `
-                    <img src="${currentUser.photoURL || 'https://www.gravatar.com/avatar/?d=mp'}" class="profile-avatar">
-                    <div class="profile-info">
-                        <div class="profile-name">${currentUser.displayName || 'Пользователь'}</div>
-                        <div class="profile-email">${currentUser.email}</div>
-                        <button onclick="logout()" class="logout-btn">
-                            <i class="fas fa-sign-out-alt"></i> Выйти
-                        </button>
-                    </div>
-                `;
-            } else {
-                profileHeader.innerHTML = `
-                    <div class="profile-info" style="text-align: center; width: 100%;">
-                        <div class="profile-name">Гость</div>
-                        <div class="profile-email">Войдите, чтобы использовать все функции</div>
-                        <button onclick="openProfilePanel('auth')" class="logout-btn" style="background-color: var(--main-color);">
-                            <i class="fas fa-sign-in-alt"></i> Войти
-                        </button>
-                    </div>
-                `;
-            }
-            
-            const menuItems = [
-                { id: 'orders', icon: 'fa-clock', title: 'Недавние заказы', badge: null, action: () => openProfilePanel('orders') },
-                { id: 'bonus', icon: 'fa-percent', title: 'Бонусная карта', badge: null, action: () => openProfilePanel('bonus'), requiresAuth: true },
-                { id: 'favorites', icon: 'fa-heart', title: 'Избранное', badge: favorites.length > 0 ? favorites.length : null, action: () => openProfilePanel('favorites'), requiresAuth: true },
-                { id: 'announcement', icon: 'fa-bullhorn', title: 'Объявления', badge: null, action: () => openProfilePanel('announcement') },
-                { id: 'feedback', icon: 'fa-envelope', title: 'Обратная связь', badge: null, action: () => openProfilePanel('feedback') }
-            ];
-            
-            profileMenu.innerHTML = '';
-            
-            menuItems.forEach(item => {
-                if (item.requiresAuth && !currentUser) {
-                    const div = document.createElement('div');
-                    div.className = 'profile-menu-item disabled';
-                    div.innerHTML = `
-                        <i class="fas ${item.icon}"></i>
-                        <span>${item.title}</span>
-                        <span class="menu-item-badge"><i class="fas fa-lock"></i></span>
-                    `;
-                    profileMenu.appendChild(div);
-                } else {
-                    const div = document.createElement('div');
-                    div.className = 'profile-menu-item';
-                    div.innerHTML = `
-                        <i class="fas ${item.icon}"></i>
-                        <span>${item.title}</span>
-                        ${item.badge ? `<span class="menu-item-badge">${item.badge}</span>` : ''}
-                    `;
-                    div.addEventListener('click', item.action);
-                    profileMenu.appendChild(div);
-                }
-            });
+    const profileHeader = document.getElementById('profileHeader');
+    const profileMenu = document.getElementById('profileMenu');
+    
+    if (!profileHeader || !profileMenu) return;
+    
+    if (currentUser) {
+        profileHeader.innerHTML = `
+            <img src="${currentUser.photoURL || 'https://www.gravatar.com/avatar/?d=mp'}" class="profile-avatar" onerror="this.src='https://www.gravatar.com/avatar/?d=mp'">
+            <div class="profile-info">
+                <div class="profile-name">${currentUser.displayName || 'Пользователь'}</div>
+                <div class="profile-email">${currentUser.email || ''}</div>
+                <button onclick="window.logout()" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i> Выйти
+                </button>
+            </div>
+        `;
+    } else {
+        profileHeader.innerHTML = `
+            <div class="profile-info" style="text-align: center; width: 100%;">
+                <div class="profile-name">Гость</div>
+                <div class="profile-email">Войдите, чтобы использовать все функции</div>
+                <button onclick="window.openProfilePanel('auth')" class="logout-btn" style="background-color: var(--main-color);">
+                    <i class="fas fa-sign-in-alt"></i> Войти
+                </button>
+            </div>
+        `;
+    }
+    
+    const menuItems = [
+        { id: 'orders', icon: 'fa-clock', title: 'Недавние заказы', badge: null, action: () => window.openProfilePanel('orders') },
+        { id: 'bonus', icon: 'fa-percent', title: 'Бонусная карта', badge: null, action: () => window.openProfilePanel('bonus'), requiresAuth: true },
+        { id: 'favorites', icon: 'fa-heart', title: 'Избранное', badge: favorites.length > 0 ? favorites.length : null, action: () => window.openProfilePanel('favorites'), requiresAuth: true },
+        { id: 'announcement', icon: 'fa-bullhorn', title: 'Объявления', badge: null, action: () => window.openProfilePanel('announcement') },
+        { id: 'feedback', icon: 'fa-envelope', title: 'Обратная связь', badge: null, action: () => window.openProfilePanel('feedback') }
+    ];
+    
+    profileMenu.innerHTML = '';
+    
+    menuItems.forEach(item => {
+        if (item.requiresAuth && !currentUser) {
+            const div = document.createElement('div');
+            div.className = 'profile-menu-item disabled';
+            div.innerHTML = `
+                <i class="fas ${item.icon}"></i>
+                <span>${item.title}</span>
+                <span class="menu-item-badge"><i class="fas fa-lock"></i></span>
+            `;
+            profileMenu.appendChild(div);
+        } else {
+            const div = document.createElement('div');
+            div.className = 'profile-menu-item';
+            div.innerHTML = `
+                <i class="fas ${item.icon}"></i>
+                <span>${item.title}</span>
+                ${item.badge ? `<span class="menu-item-badge">${item.badge}</span>` : ''}
+            `;
+            div.addEventListener('click', item.action);
+            profileMenu.appendChild(div);
+        }
+    });
         }
 
         // ========== ФУНКЦИИ ДЛЯ ПАНЕЛИ ПРОФИЛЯ ==========
