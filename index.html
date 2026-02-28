@@ -1403,6 +1403,7 @@
             font-weight: 700;
             margin: 0;
             flex-grow: 1;
+            text-align: center;
         }
         .close-profile {
             background: none;
@@ -1954,7 +1955,11 @@
 <body>
     <!-- Контейнер для падающих ахмедиков -->
     <div id="falling-ahmediks-container" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999;"></div>
-    
+
+    <!-- ЗАГРУЗОЧНЫЙ ЭКРАН -->
+    <div class="loading-screen" id="loadingScreen">
+        <img src="img/img/loading.gif" alt="Загрузка" class="loading-gif">
+    </div>
 
     <!-- МОДАЛЬНОЕ ОКНО ДЛЯ ОЦЕНКИ -->
     <div class="rating-modal-overlay" id="ratingModalOverlay">
@@ -2101,16 +2106,16 @@
         <!-- СТРАНИЦА ПРОФИЛЯ -->
         <div id="profile-page" class="page">
             <div class="container">
-                <!-- Шапка профиля (будет заполнена динамически) -->
+                <!-- Шапка профиля -->
                 <div class="profile-header" id="profileHeader"></div>
 
-                <!-- Меню профиля (будет заполнено динамически) -->
+                <!-- Меню профиля -->
                 <div class="profile-menu" id="profileMenu"></div>
             </div>
         </div>
     </main>
 
-    <!-- ВЫЕЗЖАЮЩАЯ ПАНЕЛЬ ПРОФИЛЯ (БЕЗ СТРЕЛКИ) -->
+    <!-- ВЫЕЗЖАЮЩАЯ ПАНЕЛЬ ПРОФИЛЯ -->
     <div class="profile-overlay" id="profileOverlay"></div>
     <div class="profile-panel" id="profilePanel">
         <div class="profile-header-panel">
@@ -2172,7 +2177,7 @@
                     </div>
                 </div>
 
-                <!-- НОВОЕ ОБЪЯВЛЕНИЕ 1.0.8 -->
+                <!-- ОБЪЯВЛЕНИЕ 1.0.8 -->
                 <div class="announcement-card">
                     <div class="announcement-title">Обновление 1.0.8.</div>
                     <div class="announcement-text">Реализован вход через Google, вкладка «Еще» переделана в «Профиль».</div>
@@ -2469,27 +2474,18 @@
                 if (userSnap.exists()) {
                     const userData = userSnap.data();
                     
-                    // Загружаем данные из Firestore
-                    if (userData.cart) {
-                        cart = userData.cart;
-                        updateCart();
-                    }
-                    if (userData.orders) {
-                        orders = userData.orders;
-                        renderOrders();
-                    }
-                    if (userData.bonusCard) {
-                        bonusCard = userData.bonusCard;
-                        updateBonusDisplay();
-                    }
-                    if (userData.favorites) {
-                        favorites = userData.favorites;
-                        updateFavoriteButtons();
-                    }
+                    if (userData.cart) cart = userData.cart;
+                    if (userData.orders) orders = userData.orders;
+                    if (userData.bonusCard) bonusCard = userData.bonusCard;
+                    if (userData.favorites) favorites = userData.favorites;
                     
-                    showNotification('Данные загружены', 'Ваши данные синхронизированы с облаком');
+                    updateCart();
+                    renderOrders();
+                    updateBonusDisplay();
+                    updateFavoriteButtons();
+                    
+                    showNotification('Данные загружены', 'Ваши данные синхронизированы');
                 } else {
-                    // Новый пользователь, создаем документ
                     await setDoc(userRef, {
                         cart: cart,
                         orders: orders,
@@ -2502,22 +2498,18 @@
                     });
                 }
                 
-                // Обновляем UI
                 updateUIForAuthState(true);
-                if (currentPage === 'profile') {
-                    renderProfilePage();
-                }
+                if (currentPage === 'profile') renderProfilePage();
             } catch (error) {
-                console.error('Ошибка синхронизации с Firestore:', error);
+                console.error('Ошибка синхронизации:', error);
             }
         }
 
         async function saveUserDataToFirestore() {
             if (!currentUser) return;
             
-            const userRef = doc(db, 'users', currentUser.uid);
-            
             try {
+                const userRef = doc(db, 'users', currentUser.uid);
                 await updateDoc(userRef, {
                     cart: cart,
                     orders: orders,
@@ -2526,11 +2518,47 @@
                     lastUpdated: new Date().toISOString()
                 });
             } catch (error) {
-                console.error('Ошибка сохранения в Firestore:', error);
+                console.error('Ошибка сохранения:', error);
             }
         }
 
-        // Функции входа/выхода
+        // ========== ФУНКЦИЯ ВЫХОДА (ИСПРАВЛЕННАЯ) ==========
+        window.logout = async function() {
+            try {
+                if (currentUser) {
+                    await saveUserDataToFirestore();
+                }
+                await signOut(auth);
+                
+                // Сброс данных
+                cart = [];
+                orders = [];
+                bonusCard = null;
+                favorites = [];
+                
+                updateCart();
+                renderOrders();
+                updateBonusDisplay();
+                updateFavoriteButtons();
+                updateUIForAuthState(false);
+                
+                showNotification('Выход', 'Вы вышли из аккаунта');
+                
+                // Закрываем панель если открыта
+                if (profilePanel.classList.contains('active')) {
+                    closeProfilePanel();
+                }
+                
+                // Переходим на главную
+                switchPage('home');
+                
+            } catch (error) {
+                console.error('Ошибка выхода:', error);
+                showNotification('Ошибка выхода', error.message, 'error');
+            }
+        };
+
+        // Функция входа через Google
         window.loginWithGoogle = async function() {
             try {
                 const result = await signInWithPopup(auth, googleProvider);
@@ -2543,53 +2571,20 @@
             }
         };
 
-        // Делаем функцию выхода глобальной
-window.logout = async function() {
-    try {
-        // Сохраняем данные перед выходом
-        if (currentUser) {
-            await saveUserDataToFirestore();
-        }
-        await signOut(auth);
-        resetLocalData();
-        showNotification('Выход', 'Вы вышли из аккаунта');
-        switchPage('home');
-        closeProfilePanel(); // Закрываем панель если открыта
-    } catch (error) {
-        console.error('Ошибка выхода:', error);
-        showNotification('Ошибка выхода', error.message, 'error');
-};
-
-        // Сброс локальных данных
-        function resetLocalData() {
-            cart = [];
-            orders = [];
-            bonusCard = null;
-            favorites = [];
-            updateCart();
-            renderOrders();
-            updateBonusDisplay();
-            updateFavoriteButtons();
-            updateUIForAuthState(false);
-        }
-
-        // Слушаем изменения статуса авторизации
+        // Слушаем изменения статуса
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 currentUser = user;
                 syncUserDataFromFirestore(user);
             } else {
                 currentUser = null;
-                resetLocalData();
                 updateUIForAuthState(false);
             }
         });
 
         // Обновление интерфейса
         function updateUIForAuthState(isLoggedIn) {
-            if (currentPage === 'profile') {
-                renderProfilePage();
-            }
+            if (currentPage === 'profile') renderProfilePage();
             
             if (bonusCardButton) {
                 if (isLoggedIn) {
@@ -2610,66 +2605,66 @@ window.logout = async function() {
 
         // ========== ФУНКЦИИ ДЛЯ ПРОФИЛЯ ==========
         function renderProfilePage() {
-    const profileHeader = document.getElementById('profileHeader');
-    const profileMenu = document.getElementById('profileMenu');
-    
-    if (!profileHeader || !profileMenu) return;
-    
-    if (currentUser) {
-        profileHeader.innerHTML = `
-            <img src="${currentUser.photoURL || 'https://www.gravatar.com/avatar/?d=mp'}" class="profile-avatar" onerror="this.src='https://www.gravatar.com/avatar/?d=mp'">
-            <div class="profile-info">
-                <div class="profile-name">${currentUser.displayName || 'Пользователь'}</div>
-                <div class="profile-email">${currentUser.email || ''}</div>
-                <button onclick="window.logout()" class="logout-btn">
-                    <i class="fas fa-sign-out-alt"></i> Выйти
-                </button>
-            </div>
-        `;
-    } else {
-        profileHeader.innerHTML = `
-            <div class="profile-info" style="text-align: center; width: 100%;">
-                <div class="profile-name">Гость</div>
-                <div class="profile-email">Войдите, чтобы использовать все функции</div>
-                <button onclick="window.openProfilePanel('auth')" class="logout-btn" style="background-color: var(--main-color);">
-                    <i class="fas fa-sign-in-alt"></i> Войти
-                </button>
-            </div>
-        `;
-    }
-    
-    const menuItems = [
-        { id: 'orders', icon: 'fa-clock', title: 'Недавние заказы', badge: null, action: () => window.openProfilePanel('orders') },
-        { id: 'bonus', icon: 'fa-percent', title: 'Бонусная карта', badge: null, action: () => window.openProfilePanel('bonus'), requiresAuth: true },
-        { id: 'favorites', icon: 'fa-heart', title: 'Избранное', badge: favorites.length > 0 ? favorites.length : null, action: () => window.openProfilePanel('favorites'), requiresAuth: true },
-        { id: 'announcement', icon: 'fa-bullhorn', title: 'Объявления', badge: null, action: () => window.openProfilePanel('announcement') },
-        { id: 'feedback', icon: 'fa-envelope', title: 'Обратная связь', badge: null, action: () => window.openProfilePanel('feedback') }
-    ];
-    
-    profileMenu.innerHTML = '';
-    
-    menuItems.forEach(item => {
-        if (item.requiresAuth && !currentUser) {
-            const div = document.createElement('div');
-            div.className = 'profile-menu-item disabled';
-            div.innerHTML = `
-                <i class="fas ${item.icon}"></i>
-                <span>${item.title}</span>
-                <span class="menu-item-badge"><i class="fas fa-lock"></i></span>
-            `;
-            profileMenu.appendChild(div);
-        } else {
-            const div = document.createElement('div');
-            div.className = 'profile-menu-item';
-            div.innerHTML = `
-                <i class="fas ${item.icon}"></i>
-                <span>${item.title}</span>
-                ${item.badge ? `<span class="menu-item-badge">${item.badge}</span>` : ''}
-            `;
-            div.addEventListener('click', item.action);
-            profileMenu.appendChild(div);
-        }
-    });
+            const profileHeader = document.getElementById('profileHeader');
+            const profileMenu = document.getElementById('profileMenu');
+            
+            if (!profileHeader || !profileMenu) return;
+            
+            if (currentUser) {
+                profileHeader.innerHTML = `
+                    <img src="${currentUser.photoURL || 'https://www.gravatar.com/avatar/?d=mp'}" class="profile-avatar" onerror="this.src='https://www.gravatar.com/avatar/?d=mp'">
+                    <div class="profile-info">
+                        <div class="profile-name">${currentUser.displayName || 'Пользователь'}</div>
+                        <div class="profile-email">${currentUser.email || ''}</div>
+                        <button onclick="window.logout()" class="logout-btn">
+                            <i class="fas fa-sign-out-alt"></i> Выйти
+                        </button>
+                    </div>
+                `;
+            } else {
+                profileHeader.innerHTML = `
+                    <div class="profile-info" style="text-align: center; width: 100%;">
+                        <div class="profile-name">Гость</div>
+                        <div class="profile-email">Войдите, чтобы использовать все функции</div>
+                        <button onclick="window.openProfilePanel('auth')" class="logout-btn" style="background-color: var(--main-color);">
+                            <i class="fas fa-sign-in-alt"></i> Войти
+                        </button>
+                    </div>
+                `;
+            }
+            
+            const menuItems = [
+                { id: 'orders', icon: 'fa-clock', title: 'Недавние заказы', badge: null, action: () => window.openProfilePanel('orders') },
+                { id: 'bonus', icon: 'fa-percent', title: 'Бонусная карта', badge: null, action: () => window.openProfilePanel('bonus'), requiresAuth: true },
+                { id: 'favorites', icon: 'fa-heart', title: 'Избранное', badge: favorites.length, action: () => window.openProfilePanel('favorites'), requiresAuth: true },
+                { id: 'announcement', icon: 'fa-bullhorn', title: 'Объявления', badge: null, action: () => window.openProfilePanel('announcement') },
+                { id: 'feedback', icon: 'fa-envelope', title: 'Обратная связь', badge: null, action: () => window.openProfilePanel('feedback') }
+            ];
+            
+            profileMenu.innerHTML = '';
+            
+            menuItems.forEach(item => {
+                if (item.requiresAuth && !currentUser) {
+                    const div = document.createElement('div');
+                    div.className = 'profile-menu-item disabled';
+                    div.innerHTML = `
+                        <i class="fas ${item.icon}"></i>
+                        <span>${item.title}</span>
+                        <span class="menu-item-badge"><i class="fas fa-lock"></i></span>
+                    `;
+                    profileMenu.appendChild(div);
+                } else {
+                    const div = document.createElement('div');
+                    div.className = 'profile-menu-item';
+                    div.innerHTML = `
+                        <i class="fas ${item.icon}"></i>
+                        <span>${item.title}</span>
+                        ${item.badge ? `<span class="menu-item-badge">${item.badge}</span>` : ''}
+                    `;
+                    div.addEventListener('click', item.action);
+                    profileMenu.appendChild(div);
+                }
+            });
         }
 
         // ========== ФУНКЦИИ ДЛЯ ПАНЕЛИ ПРОФИЛЯ ==========
@@ -2685,7 +2680,7 @@ window.logout = async function() {
                     if (authContainer) {
                         authContainer.innerHTML = `
                             <div class="auth-buttons">
-                                <button onclick="loginWithGoogle()" class="submit-btn google-btn">
+                                <button onclick="window.loginWithGoogle()" class="submit-btn google-btn">
                                     <i class="fab fa-google"></i> Войти через Google
                                 </button>
                             </div>
@@ -2742,7 +2737,7 @@ window.logout = async function() {
         closeProfile.addEventListener('click', closeProfilePanel);
         profileOverlay.addEventListener('click', closeProfilePanel);
 
-        // ========== ФУНКЦИИ ДЛЯ УВЕДОМЛЕНИЙ ==========
+        // ========== УВЕДОМЛЕНИЯ ==========
         function showNotification(title, message, type = 'success') {
             const notificationTitle = document.getElementById('notificationTitle');
             const notificationMessage = document.getElementById('notificationMessage');
@@ -2756,10 +2751,8 @@ window.logout = async function() {
                 notificationIcon.innerHTML = '<i class="fas fa-exclamation-circle" style="color: #ff4444;"></i>';
             } else if (type === 'favorite') {
                 notificationIcon.innerHTML = '<i class="fas fa-heart" style="color: #ff4d4d;"></i>';
-                notificationIcon.className = 'notification-icon favorite';
             } else {
                 notificationIcon.innerHTML = '<i class="fas fa-check-circle"></i>';
-                notificationIcon.className = 'notification-icon';
             }
             
             cartNotification.classList.add('show');
@@ -2786,7 +2779,7 @@ window.logout = async function() {
             }
             
             updateCart();
-            showNotification('Товар добавлен в корзину', item.name, 'success');
+            showNotification('Товар добавлен в корзину', item.name);
             saveUserDataToFirestore();
         }
 
@@ -2811,10 +2804,7 @@ window.logout = async function() {
                 const div = document.createElement('div');
                 div.className = 'cart-page-item';
                 div.innerHTML = `
-                    <div>
-                        <strong>${item.name}</strong> x${item.quantity}<br>
-                        <small>${item.price} ₽/шт</small>
-                    </div>
+                    <div><strong>${item.name}</strong> x${item.quantity}<br><small>${item.price} ₽/шт</small></div>
                     <div><strong>${item.price * item.quantity} ₽</strong></div>
                 `;
                 cartPageItems.appendChild(div);
@@ -2828,7 +2818,7 @@ window.logout = async function() {
         // ========== ФУНКЦИИ ДЛЯ ИЗБРАННОГО ==========
         window.toggleFavorite = function(itemId) {
             if (!currentUser) {
-                showNotification('Требуется вход', 'Войдите в аккаунт, чтобы добавлять в избранное', 'error');
+                showNotification('Требуется вход', 'Войдите, чтобы добавлять в избранное', 'error');
                 return;
             }
             
@@ -2855,13 +2845,8 @@ window.logout = async function() {
             updateFavoriteButtons();
             saveUserDataToFirestore();
             
-            if (currentPage === 'profile') {
-                renderProfilePage();
-            }
-            
-            if (profileFavoritesPanel.classList.contains('active')) {
-                renderFavorites();
-            }
+            if (currentPage === 'profile') renderProfilePage();
+            if (profileFavoritesPanel.classList.contains('active')) renderFavorites();
         }
 
         function updateFavoriteButtons() {
@@ -2884,7 +2869,7 @@ window.logout = async function() {
                 favoritesContainer.innerHTML = `
                     <div class="empty-favorites">
                         <i class="fas fa-lock"></i>
-                        <p>Войдите в аккаунт, чтобы просматривать избранное</p>
+                        <p>Войдите в аккаунт</p>
                     </div>
                 `;
                 return;
@@ -2895,7 +2880,6 @@ window.logout = async function() {
                     <div class="empty-favorites">
                         <i class="far fa-heart"></i>
                         <p>В избранном пока пусто</p>
-                        <p style="font-size: 1rem; margin-top: 10px;">Добавляйте понравившиеся товары сердечком в меню</p>
                     </div>
                 `;
                 return;
@@ -2909,7 +2893,7 @@ window.logout = async function() {
                 div.className = 'favorites-item';
                 div.innerHTML = `
                     <div class="item-image">
-                        <img src="${item.image}" alt="${item.name}" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAwIiBoZWlnaHQ9IjQwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZmNjZDk3Ii8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIyNCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzVjM2QxZSI+U2hhc2hseWs8L3RleHQ+PC9zdmc+';">
+                        <img src="${item.image}" alt="${item.name}">
                     </div>
                     <div class="item-info">
                         <h3 class="item-name">${item.name}</h3>
@@ -2957,20 +2941,20 @@ window.logout = async function() {
                 bonusUsed = true;
                 total = Math.max(0, total - 1);
                 bonusEarned = Math.floor(Math.random() * 3) + 2;
-                addBonusPoints(bonusEarned);
                 
-                if (!bonusCard.firstUse && bonusCard.balance > 0) {
+                if (bonusCard) {
+                    bonusCard.balance += bonusEarned;
+                }
+                
+                if (!bonusCard?.firstUse && bonusCard?.balance > 0) {
                     const maxDeduct = Math.min(bonusCard.balance, 5);
                     if (maxDeduct > 0) {
                         bonusSpent = Math.floor(Math.random() * maxDeduct) + 1;
                         bonusSpent = Math.min(bonusSpent, bonusCard.balance);
-                        deductBonusPoints(bonusSpent);
+                        bonusCard.balance -= bonusSpent;
                     }
                 }
-                if (bonusCard.firstUse) {
-                    bonusCard.firstUse = false;
-                    saveUserDataToFirestore();
-                }
+                if (bonusCard?.firstUse) bonusCard.firstUse = false;
             }
             
             const newOrderNumber = getNextOrderNumber();
@@ -3061,7 +3045,7 @@ window.logout = async function() {
                 
                 const qrHtml = (order.status === 'ready' && order.deliveryType === 'pickup' && order.status !== 'completed') ? `
                     <div class="qr-code-container show">
-                        <img src="img/img/qr-code.png" class="qr-code-image" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTUwIiBoZWlnaHQ9IjE1MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZmNjZDk3Ii8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzVjM2QxZSI+UVItQ09ERTwvdGV4dD48L3N2Zz4+';">
+                        <img src="img/img/qr-code.png" class="qr-code-image">
                     </div>
                 ` : '';
                 
@@ -3073,7 +3057,7 @@ window.logout = async function() {
                 
                 const deleteBtnHtml = order.status === 'completed' ? `
                     <button class="delete-order-btn" data-order-id="${order.id}">
-                        <i class="fas fa-trash"></i> Удалить заказ
+                        <i class="fas fa-trash"></i> Удалить
                     </button>
                 ` : '';
                 
@@ -3133,10 +3117,10 @@ window.logout = async function() {
                 const balanceDiv = document.createElement('div');
                 balanceDiv.className = 'bonus-balance';
                 balanceDiv.innerHTML = `
-                    <div class="bonus-card-number">Номер карты: ${bonusCard.cardNumber}</div>
+                    <div class="bonus-card-number">Номер: ${bonusCard.cardNumber}</div>
                     <h3>Ваш баланс</h3>
                     <div class="bonus-balance-value">
-                        <span id="bonusBalanceValue">${bonusCard.balance}</span>
+                        <span>${bonusCard.balance}</span>
                         <span class="bonus-currency">ахмедиков</span>
                     </div>
                 `;
@@ -3146,55 +3130,9 @@ window.logout = async function() {
                 if (bonusBalanceInfo) bonusBalanceInfo.style.display = 'flex';
                 if (bonusForm) bonusForm.classList.add('hidden');
             } else {
-                bonusBalanceContainer.innerHTML = '<p style="text-align:center; padding:20px;">У вас нет активной карты. Заполните форму ниже, чтобы активировать.</p>';
+                bonusBalanceContainer.innerHTML = '<p style="text-align:center; padding:20px;">У вас нет активной карты</p>';
                 if (bonusForm) bonusForm.classList.remove('hidden');
                 if (bonusBalanceInfo) bonusBalanceInfo.style.display = 'none';
-            }
-        }
-
-        function addBonusPoints(points) {
-            if (!bonusCard || !currentUser) return false;
-            bonusCard.balance += points;
-            saveUserDataToFirestore();
-            updateBonusDisplay();
-            createFallingAhmediks(15);
-            return true;
-        }
-
-        function deductBonusPoints(points) {
-            if (!bonusCard || bonusCard.balance < points || !currentUser) return false;
-            bonusCard.balance -= points;
-            if (bonusCard.firstUse) bonusCard.firstUse = false;
-            saveUserDataToFirestore();
-            updateBonusDisplay();
-            createFallingAhmediks(10);
-            return true;
-        }
-
-        function createFallingAhmediks(count = 20) {
-            const container = document.getElementById('falling-ahmediks-container');
-            
-            for (let i = 0; i < count; i++) {
-                setTimeout(() => {
-                    const ahmedik = document.createElement('img');
-                    ahmedik.src = 'img/img/ahmedik.png';
-                    ahmedik.className = 'ahmedik-fall';
-                    
-                    const left = Math.random() * 100;
-                    const size = 30 + Math.random() * 40;
-                    
-                    ahmedik.style.left = left + '%';
-                    ahmedik.style.width = size + 'px';
-                    ahmedik.style.height = size + 'px';
-                    
-                    container.appendChild(ahmedik);
-                    
-                    setTimeout(() => {
-                        if (ahmedik.parentNode) {
-                            ahmedik.remove();
-                        }
-                    }, 2000);
-                }, i * 50);
             }
         }
 
@@ -3209,25 +3147,14 @@ window.logout = async function() {
             }
             
             if (searchTerm === '') {
-                document.querySelectorAll('.menu-section').forEach(section => {
-                    section.classList.add('active');
-                });
-                
-                document.querySelectorAll('.menu-item').forEach(item => {
-                    item.style.display = 'flex';
-                });
-                
-                document.querySelectorAll('.menu-section').forEach(section => {
-                    section.classList.remove('search-mode');
-                });
-                
+                document.querySelectorAll('.menu-section').forEach(s => s.classList.add('active'));
+                document.querySelectorAll('.menu-item').forEach(i => i.style.display = 'flex');
+                document.querySelectorAll('.menu-section').forEach(s => s.classList.remove('search-mode'));
                 noResultsMessage.style.display = 'none';
                 return;
             }
             
-            document.querySelectorAll('.menu-section').forEach(section => {
-                section.classList.add('search-mode');
-            });
+            document.querySelectorAll('.menu-section').forEach(s => s.classList.add('search-mode'));
             
             let hasResults = false;
             
@@ -3243,10 +3170,7 @@ window.logout = async function() {
                 }
             });
             
-            document.querySelectorAll('.menu-section').forEach(section => {
-                section.classList.add('active');
-            });
-            
+            document.querySelectorAll('.menu-section').forEach(s => s.classList.add('active'));
             noResultsMessage.style.display = hasResults ? 'none' : 'block';
         }
 
@@ -3254,18 +3178,12 @@ window.logout = async function() {
             searchInput.value = '';
             clearSearch.classList.remove('visible');
             noResultsMessage.style.display = 'none';
-            
-            document.querySelectorAll('.menu-item').forEach(item => {
-                item.style.display = 'flex';
-            });
-            
-            document.querySelectorAll('.menu-section').forEach(section => {
-                section.classList.remove('search-mode');
-            });
+            document.querySelectorAll('.menu-item').forEach(i => i.style.display = 'flex');
+            document.querySelectorAll('.menu-section').forEach(s => s.classList.remove('search-mode'));
             
             const activeCategory = document.querySelector('.category-btn.active').dataset.category;
-            document.querySelectorAll('.menu-section').forEach(section => {
-                section.classList.toggle('active', section.id === activeCategory);
+            document.querySelectorAll('.menu-section').forEach(s => {
+                s.classList.toggle('active', s.id === activeCategory);
             });
         }
 
@@ -3337,7 +3255,7 @@ window.logout = async function() {
                     div.className = 'menu-item';
                     div.innerHTML = `
                         <div class="item-image">
-                            <img src="${item.image}" alt="${item.name}" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAwIiBoZWlnaHQ9IjQwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZmNjZDk3Ii8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIyNCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzVjM2QxZSI+U2hhc2hseWs8L3RleHQ+PC9zdmc+';">
+                            <img src="${item.image}" alt="${item.name}">
                         </div>
                         <div class="item-info">
                             <h3 class="item-name">${item.name}</h3>
@@ -3357,7 +3275,7 @@ window.logout = async function() {
                 });
             }
             
-            // Обработчики для кнопок
+            // Обработчики кнопок
             document.addEventListener('click', (e) => {
                 if (e.target.closest('.add-to-cart')) {
                     const btn = e.target.closest('.add-to-cart');
@@ -3374,14 +3292,12 @@ window.logout = async function() {
                 }
             });
             
-            // Категории меню
+            // Категории
             categoryBtns.forEach(btn => {
                 btn.addEventListener('click', function() {
                     resetSearch();
-                    
                     categoryBtns.forEach(b => b.classList.remove('active'));
                     this.classList.add('active');
-                    
                     menuSections.forEach(s => s.classList.remove('active'));
                     document.getElementById(this.dataset.category).classList.add('active');
                 });
@@ -3412,14 +3328,8 @@ window.logout = async function() {
                 
                 if (currentUser && bonusCard) {
                     bonusBalanceDisplay.textContent = bonusCard.balance;
-                    const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-                    
-                    if (total < 500) {
-                        bonusWarning.style.display = 'block';
-                    } else {
-                        bonusWarning.style.display = 'none';
-                    }
-                    
+                    const total = cart.reduce((sum, i) => sum + i.price * i.quantity, 0);
+                    bonusWarning.style.display = total < 500 ? 'block' : 'none';
                     bonusBalanceInfo.style.display = 'flex';
                 } else {
                     bonusWarning.style.display = 'none';
@@ -3443,7 +3353,7 @@ window.logout = async function() {
                 }
             });
             
-            // Доставка в заказе
+            // Доставка
             deliveryTypeRadios.forEach(r => {
                 r.addEventListener('change', function() {
                     if (this.value === 'delivery') {
@@ -3459,7 +3369,7 @@ window.logout = async function() {
             // Бонусная карта в заказе
             bonusCardButton.addEventListener('click', function() {
                 if (!currentUser) {
-                    showNotification('Требуется вход', 'Войдите, чтобы использовать бонусную карту', 'error');
+                    showNotification('Требуется вход', 'Войдите, чтобы использовать карту', 'error');
                     return;
                 }
                 
@@ -3468,7 +3378,7 @@ window.logout = async function() {
                     return;
                 }
                 
-                const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+                const total = cart.reduce((sum, i) => sum + i.price * i.quantity, 0);
                 if (total < 500) {
                     showNotification('Сумма заказа', 'Бонусы доступны от 500 ₽', 'error');
                     return;
@@ -3488,7 +3398,7 @@ window.logout = async function() {
                 const addr = delType === 'delivery' ? document.getElementById('customerAddress').value : null;
                 const useBonus = useBonusCardInOrder.checked;
                 
-                const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+                const total = cart.reduce((sum, i) => sum + i.price * i.quantity, 0);
                 
                 if (useBonus && total < 500) {
                     showNotification('Ошибка', 'Бонусы доступны от 500 ₽', 'error');
@@ -3520,7 +3430,7 @@ window.logout = async function() {
                     
                     switchPage('home');
                     setTimeout(() => {
-                        openProfilePanel('orders');
+                        window.openProfilePanel('orders');
                     }, 300);
                 }, 2000);
             });
@@ -3529,10 +3439,8 @@ window.logout = async function() {
             bonusTabs.forEach(tab => {
                 tab.addEventListener('click', function() {
                     const tabId = this.dataset.tab;
-                    
                     bonusTabs.forEach(t => t.classList.remove('active'));
                     this.classList.add('active');
-                    
                     bonusTabContents.forEach(c => c.classList.remove('active'));
                     document.getElementById(tabId + 'Tab').classList.add('active');
                 });
@@ -3570,10 +3478,23 @@ window.logout = async function() {
                 saveUserDataToFirestore();
                 updateBonusDisplay();
                 showNotification('Карта активирована', 'Теперь вы можете копить ахмедики!');
-                createFallingAhmediks(12);
+                
+                // Дождь из ахмедиков
+                for (let i = 0; i < 12; i++) {
+                    setTimeout(() => {
+                        const ahmedik = document.createElement('img');
+                        ahmedik.src = 'img/img/ahmedik.png';
+                        ahmedik.className = 'ahmedik-fall';
+                        ahmedik.style.left = Math.random() * 100 + '%';
+                        ahmedik.style.width = (30 + Math.random() * 40) + 'px';
+                        ahmedik.style.height = ahmedik.style.width;
+                        document.getElementById('falling-ahmediks-container').appendChild(ahmedik);
+                        setTimeout(() => ahmedik.remove(), 2000);
+                    }, i * 50);
+                }
             });
             
-            // Ввод только цифр для номера карты
+            // Ввод только цифр
             bonusCardNumberInput.addEventListener('input', function() {
                 this.value = this.value.replace(/\D/g, '').slice(0, 8);
             });
@@ -3583,7 +3504,6 @@ window.logout = async function() {
                 s.addEventListener('click', function() {
                     const rating = parseInt(this.dataset.rating);
                     selectedRatingInput.value = rating;
-                    
                     ratingStars.forEach(star => {
                         const starRating = parseInt(star.dataset.rating);
                         star.classList.toggle('active', starRating <= rating);
@@ -3620,7 +3540,6 @@ window.logout = async function() {
                     
                     saveUserDataToFirestore();
                     renderOrders();
-                    
                     showNotification('Спасибо!', 'Ваша оценка принята');
                 }
                 
@@ -3634,9 +3553,7 @@ window.logout = async function() {
                     const orderId = e.target.dataset.orderId;
                     ratingOrderIdInput.value = orderId;
                     selectedRatingInput.value = '0';
-                    
                     ratingStars.forEach(star => star.classList.remove('active'));
-                    
                     ratingModalOverlay.classList.add('active');
                     document.body.style.overflow = 'hidden';
                 }
@@ -3703,17 +3620,19 @@ window.logout = async function() {
             
             // Скрываем загрузочный экран
             setTimeout(() => {
-                loadingScreen.classList.add('hidden');
+                if (loadingScreen) {
+                    loadingScreen.classList.add('hidden');
+                }
             }, 1000);
             
             // Обновление статусов заказов каждую минуту
             setInterval(updateOrderStatuses, 60000);
             
-            // Переключаемся на главную страницу
+            // Переключаемся на главную
             switchPage('home');
         }
 
-        // Запускаем инициализацию после загрузки страницы
+        // Запускаем инициализацию
         window.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
