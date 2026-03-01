@@ -1182,15 +1182,83 @@
             transition: all 0.3s ease;
             animation: slideIn 0.3s ease;
         }
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateX(-20px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
         .cart-page-item:hover {
             background-color: #f5f5f5;
             transform: translateX(5px);
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
+
+        /* Новые стили для управления количеством в корзине */
+        .cart-item-info {
+            display: flex;
+            flex-direction: column;
+            flex: 2;
+        }
+
+        .cart-item-name {
+            font-weight: 600;
+            color: var(--dark-color);
+            margin-bottom: 4px;
+        }
+
+        .cart-item-price {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .cart-item-controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+            justify-content: center;
+        }
+
+        .cart-quantity-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 2px solid var(--main-color);
+            background-color: white;
+            color: var(--dark-color);
+            font-size: 1.3rem;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .cart-quantity-btn:hover {
+            background-color: var(--main-color);
+            transform: scale(1.1);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        /* Кнопка минус всегда активна */
+        .cart-quantity-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            border-color: #ccc;
+            background-color: #f0f0f0;
+        }
+
+        .cart-item-quantity {
+            font-size: 1.1rem;
+            font-weight: 600;
+            min-width: 30px;
+            text-align: center;
+        }
+
+        .cart-item-total {
+            font-weight: 700;
+            color: var(--dark-color);
+            min-width: 80px;
+            text-align: right;
+            flex: 1;
+        }
+
         .cart-page-total {
             display: flex;
             justify-content: space-between;
@@ -1351,13 +1419,6 @@
         }
         .google-btn {
             background-color: #4285f4 !important;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-        .github-btn {
-            background-color: #333 !important;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -2123,6 +2184,12 @@
                 </div>
                 
                 <div class="announcement-card">
+                    <div class="announcement-title">Обновление 1.0.8.</div>
+                    <div class="announcement-text">Реализована авторизация через Google</div>
+                    <div class="announcement-date">28.02.2026</div>
+                </div>
+                
+                <div class="announcement-card">
                     <div class="announcement-title">Обновление 1.0.7.</div>
                     <div class="announcement-text">Создана возможность добавить товар в «Избранное» в одноимённый раздел во вкладке «Ещё».</div>
                     <div class="announcement-date">24.02.2026</div>
@@ -2255,7 +2322,6 @@
             getAuth, 
             signInWithPopup, 
             GoogleAuthProvider, 
-            GithubAuthProvider,
             signOut,
             onAuthStateChanged 
         } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js';
@@ -2277,7 +2343,6 @@
         
         // Провайдеры
         const googleProvider = new GoogleAuthProvider();
-        const githubProvider = new GithubAuthProvider();
 
         // Состояние авторизации
         let currentUser = null;
@@ -2286,17 +2351,6 @@
         window.loginWithGoogle = async () => {
             try {
                 const result = await signInWithPopup(auth, googleProvider);
-                showNotification('Успешный вход!', `Добро пожаловать, ${result.user.displayName}`);
-                closeMorePanel();
-            } catch (error) {
-                console.error('Ошибка входа:', error);
-                showNotification('Ошибка входа', error.message, 'error');
-            }
-        };
-
-        window.loginWithGitHub = async () => {
-            try {
-                const result = await signInWithPopup(auth, githubProvider);
                 showNotification('Успешный вход!', `Добро пожаловать, ${result.user.displayName}`);
                 closeMorePanel();
             } catch (error) {
@@ -2355,9 +2409,6 @@
                     <div class="auth-buttons">
                         <button onclick="loginWithGoogle()" class="submit-btn google-btn">
                             <i class="fab fa-google"></i> Войти через Google
-                        </button>
-                        <button onclick="loginWithGitHub()" class="submit-btn github-btn">
-                            <i class="fab fa-github"></i> Войти через GitHub
                         </button>
                     </div>
                 `;
@@ -3059,8 +3110,38 @@
             updateCart();
             showNotification('Товар добавлен в корзину', item.name, false);
         }
+
+        // Функция изменения количества товара в корзине
+        function updateCartItemQuantity(itemId, change) {
+            const itemIndex = cart.findIndex(i => i.id === itemId);
+            if (itemIndex === -1) return;
+            
+            const item = cart[itemIndex];
+            const newQuantity = item.quantity + change;
+            
+            if (newQuantity <= 0) {
+                cart.splice(itemIndex, 1);
+            } else {
+                item.quantity = newQuantity;
+            }
+            
+            updateCart();
+        }
         
-        document.addEventListener('click', (e) => { if (e.target.classList.contains('add-to-cart')) addToCart(parseInt(e.target.dataset.id)); });
+        document.addEventListener('click', (e) => { 
+            if (e.target.classList.contains('add-to-cart')) 
+                addToCart(parseInt(e.target.dataset.id)); 
+            
+            if (e.target.classList.contains('cart-quantity-plus')) {
+                const itemId = parseInt(e.target.dataset.id);
+                updateCartItemQuantity(itemId, 1);
+            }
+            
+            if (e.target.classList.contains('cart-quantity-minus')) {
+                const itemId = parseInt(e.target.dataset.id);
+                updateCartItemQuantity(itemId, -1);
+            }
+        });
 
         function updateCart() {
             const totalItems = cart.reduce((s, i) => s + i.quantity, 0);
@@ -3077,13 +3158,29 @@
                 cartPageOrderBtn.disabled = true;
                 return;
             }
+            
             cartPageItems.innerHTML = '';
+            
             cart.forEach(item => {
                 const div = document.createElement('div');
                 div.className = 'cart-page-item';
-                div.innerHTML = `<div><strong>${item.name}</strong> x${item.quantity}<br><small>${item.price} ₽/шт</small></div><div><strong>${item.price * item.quantity} ₽</strong></div>`;
+                div.innerHTML = `
+                    <div class="cart-item-info">
+                        <div class="cart-item-name">${item.name}</div>
+                        <div class="cart-item-price">${item.price} ₽/шт</div>
+                    </div>
+                    <div class="cart-item-controls">
+                        <button class="cart-quantity-btn cart-quantity-minus" data-id="${item.id}">−</button>
+                        <span class="cart-item-quantity">${item.quantity}</span>
+                        <button class="cart-quantity-btn cart-quantity-plus" data-id="${item.id}">+</button>
+                    </div>
+                    <div class="cart-item-total">
+                        ${item.price * item.quantity} ₽
+                    </div>
+                `;
                 cartPageItems.appendChild(div);
             });
+            
             const total = cart.reduce((s, i) => s + i.price * i.quantity, 0);
             cartPageTotal.textContent = `${total} ₽`;
             cartPageOrderBtn.disabled = false;
@@ -3307,4 +3404,4 @@
         });
     </script>
 </body>
-</h
+</html>
