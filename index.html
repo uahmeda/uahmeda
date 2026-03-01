@@ -2462,6 +2462,63 @@
             ]
         };
 
+        // ========== ФУНКЦИИ СОХРАНЕНИЯ В LOCALSTORAGE ==========
+        function saveCartToStorage() {
+            localStorage.setItem('ahmedCart', JSON.stringify(cart));
+        }
+
+        function loadCartFromStorage() {
+            const saved = localStorage.getItem('ahmedCart');
+            if (saved) {
+                cart = JSON.parse(saved);
+                updateCart();
+            }
+        }
+
+        function saveOrdersToStorage() {
+            localStorage.setItem('ahmedOrders', JSON.stringify(orders));
+            localStorage.setItem('ahmedOrderNumber', orderNumber.toString());
+        }
+
+        function loadOrdersFromStorage() {
+            const savedOrders = localStorage.getItem('ahmedOrders');
+            const savedNum = localStorage.getItem('ahmedOrderNumber');
+            if (savedOrders) {
+                orders = JSON.parse(savedOrders);
+                updateOrderStatuses();
+                renderOrders();
+            }
+            if (savedNum) orderNumber = parseInt(savedNum);
+        }
+
+        function saveBonusCardToStorage() {
+            if (bonusCard) {
+                localStorage.setItem('ahmedBonusCard', JSON.stringify(bonusCard));
+            } else {
+                localStorage.removeItem('ahmedBonusCard');
+            }
+        }
+
+        function loadBonusCardFromStorage() {
+            const saved = localStorage.getItem('ahmedBonusCard');
+            if (saved) {
+                bonusCard = JSON.parse(saved);
+                updateBonusDisplay();
+            }
+        }
+
+        function saveFavoritesToStorage() {
+            localStorage.setItem('ahmedFavorites', JSON.stringify(favorites));
+        }
+
+        function loadFavoritesFromStorage() {
+            const saved = localStorage.getItem('ahmedFavorites');
+            if (saved) {
+                favorites = JSON.parse(saved);
+                updateFavoriteButtons();
+            }
+        }
+
         // ========== ФУНКЦИИ ДЛЯ FIREBASE ==========
         async function syncUserDataFromFirestore(user) {
             if (!user) return;
@@ -2479,6 +2536,12 @@
                     if (userData.bonusCard) bonusCard = userData.bonusCard;
                     if (userData.favorites) favorites = userData.favorites;
                     
+                    // Сохраняем в localStorage
+                    saveCartToStorage();
+                    saveOrdersToStorage();
+                    saveBonusCardToStorage();
+                    saveFavoritesToStorage();
+                    
                     updateCart();
                     renderOrders();
                     updateBonusDisplay();
@@ -2486,6 +2549,7 @@
                     
                     showNotification('Данные загружены', 'Ваши данные синхронизированы');
                 } else {
+                    // Новый пользователь, создаем документ
                     await setDoc(userRef, {
                         cart: cart,
                         orders: orders,
@@ -2517,6 +2581,12 @@
                     favorites: favorites,
                     lastUpdated: new Date().toISOString()
                 });
+                
+                // Сохраняем в localStorage
+                saveCartToStorage();
+                saveOrdersToStorage();
+                saveBonusCardToStorage();
+                saveFavoritesToStorage();
             } catch (error) {
                 console.error('Ошибка сохранения:', error);
             }
@@ -2529,6 +2599,13 @@
                     await saveUserDataToFirestore();
                 }
                 await signOut(auth);
+                
+                // Очищаем localStorage для гостя
+                localStorage.removeItem('ahmedCart');
+                localStorage.removeItem('ahmedOrders');
+                localStorage.removeItem('ahmedOrderNumber');
+                localStorage.removeItem('ahmedBonusCard');
+                localStorage.removeItem('ahmedFavorites');
                 
                 // Сброс данных
                 cart = [];
@@ -2578,6 +2655,11 @@
                 syncUserDataFromFirestore(user);
             } else {
                 currentUser = null;
+                // Загружаем данные из localStorage для гостя
+                loadCartFromStorage();
+                loadOrdersFromStorage();
+                loadBonusCardFromStorage();
+                loadFavoritesFromStorage();
                 updateUIForAuthState(false);
             }
         });
@@ -2779,8 +2861,9 @@
             }
             
             updateCart();
+            saveCartToStorage();
             showNotification('Товар добавлен в корзину', item.name);
-            saveUserDataToFirestore();
+            if (currentUser) saveUserDataToFirestore();
         }
 
         function updateCart() {
@@ -2843,7 +2926,8 @@
             }
             
             updateFavoriteButtons();
-            saveUserDataToFirestore();
+            saveFavoritesToStorage();
+            if (currentUser) saveUserDataToFirestore();
             
             if (currentPage === 'profile') renderProfilePage();
             if (profileFavoritesPanel.classList.contains('active')) renderFavorites();
@@ -2980,7 +3064,8 @@
             orderNumber = newOrderNumber + 1;
             orders.unshift(order);
             
-            saveUserDataToFirestore();
+            saveOrdersToStorage();
+            if (currentUser) saveUserDataToFirestore();
             renderOrders();
             return order;
         }
@@ -3008,7 +3093,7 @@
                 }
             });
             
-            saveUserDataToFirestore();
+            saveOrdersToStorage();
             renderOrders();
         }
 
@@ -3425,8 +3510,9 @@
                 setTimeout(() => {
                     cart = [];
                     updateCart();
+                    saveCartToStorage();
                     closeModal.click();
-                    saveUserDataToFirestore();
+                    if (currentUser) saveUserDataToFirestore();
                     
                     switchPage('home');
                     setTimeout(() => {
@@ -3475,7 +3561,8 @@
                     userId: currentUser.uid
                 };
                 
-                saveUserDataToFirestore();
+                saveBonusCardToStorage();
+                if (currentUser) saveUserDataToFirestore();
                 updateBonusDisplay();
                 showNotification('Карта активирована', 'Теперь вы можете копить ахмедики!');
                 
@@ -3538,7 +3625,8 @@
                     orders[orderIndex].rating = rating;
                     orders[orderIndex].completedAt = new Date().getTime();
                     
-                    saveUserDataToFirestore();
+                    saveOrdersToStorage();
+                    if (currentUser) saveUserDataToFirestore();
                     renderOrders();
                     showNotification('Спасибо!', 'Ваша оценка принята');
                 }
@@ -3565,7 +3653,8 @@
                         
                         if (orderIndex !== -1) {
                             orders.splice(orderIndex, 1);
-                            saveUserDataToFirestore();
+                            saveOrdersToStorage();
+                            if (currentUser) saveUserDataToFirestore();
                             renderOrders();
                         }
                     }
@@ -3617,6 +3706,12 @@
             
             // Инициализация карусели
             initCarousel();
+            
+            // Загружаем данные из localStorage для гостя
+            loadCartFromStorage();
+            loadOrdersFromStorage();
+            loadBonusCardFromStorage();
+            loadFavoritesFromStorage();
             
             // Скрываем загрузочный экран
             setTimeout(() => {
