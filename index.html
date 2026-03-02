@@ -384,6 +384,13 @@
             animation: pulse 0.5s ease;
         }
 
+        .bonus-card-button.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
+            background-color: #f0f0f0;
+        }
+
         .bonus-card-image {
             width: 60px;
             height: 60px;
@@ -441,6 +448,19 @@
             align-items: center;
             gap: 5px;
             animation: shake 0.5s ease;
+        }
+
+        .bonus-auth-warning {
+            font-size: 0.9rem;
+            color: #d32f2f;
+            margin: 10px 0 5px 75px;
+            background-color: #ffebee;
+            padding: 8px 15px;
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            animation: fadeIn 0.5s ease;
         }
 
         @keyframes shake {
@@ -884,7 +904,7 @@
             text-align: center;
             font-size: 2.5rem;
             font-family: var(--handwritten-font);
-            font-weight: 700;
+            font-weight: 400;
         }
         .about-section p {
             font-size: 1.1rem;
@@ -899,7 +919,7 @@
             text-align: center;
             font-size: 2.5rem;
             font-family: var(--handwritten-font);
-            font-weight: 700;
+            font-weight: 400;
         }
         .features-grid {
             display: grid;
@@ -933,7 +953,7 @@
             text-align: center;
             font-size: 2.5rem;
             font-family: var(--handwritten-font);
-            font-weight: 700;
+            font-weight: 400;
         }
         .reviews-grid {
             display: grid;
@@ -970,7 +990,7 @@
             font-size: 3rem;
             margin-bottom: 15px;
             font-family: var(--handwritten-font);
-            font-weight: 700;
+            font-weight: 400;
         }
         .categories {
             display: flex;
@@ -1031,7 +1051,7 @@
             color: var(--dark-color);
             font-size: 2.2rem;
             font-family: var(--handwritten-font);
-            font-weight: 700;
+            font-weight: 400;
         }
         .section-title:after {
             content: '';
@@ -1344,7 +1364,7 @@
             color: var(--dark-color);
             font-size: 2rem;
             font-family: var(--handwritten-font);
-            font-weight: 700;
+            font-weight: 400;
             margin: 0;
             flex-grow: 1;
         }
@@ -1567,6 +1587,22 @@
             to { opacity: 1; transform: translateY(0); }
         }
         .bonus-form.hidden { display: none; }
+        .bonus-auth-required {
+            text-align: center;
+            padding: 30px;
+            background-color: #f9f9f9;
+            border-radius: 16px;
+            margin: 20px 0;
+        }
+        .bonus-auth-required i {
+            font-size: 3rem;
+            color: var(--main-color);
+            margin-bottom: 15px;
+        }
+        .bonus-auth-required p {
+            color: #666;
+            margin-bottom: 20px;
+        }
 
         /* Заказы внутри "Ещё" */
         .orders-container { padding: 10px 0; }
@@ -1768,7 +1804,7 @@
             font-size: 1.5rem;
             color: var(--dark-color);
             font-family: var(--handwritten-font);
-            font-weight: 700;
+            font-weight: 400;
             margin-bottom: 10px;
         }
         .announcement-text { 
@@ -1827,7 +1863,7 @@
         }
         .rating-modal-overlay.active .rating-modal { transform: translateY(0); }
         .rating-modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
-        .rating-modal-title { font-size: 1.8rem; color: var(--dark-color); font-family: var(--handwritten-font); font-weight: 700; }
+        .rating-modal-title { font-size: 1.8rem; color: var(--dark-color); font-family: var(--handwritten-font); font-weight: 400; }
         .close-rating-modal { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #666; transition: transform 0.3s ease; }
         .close-rating-modal:hover { transform: rotate(90deg); color: var(--dark-color); }
         .rating-stars { display: flex; justify-content: center; gap: 10px; margin-bottom: 25px; }
@@ -1917,6 +1953,7 @@
             .delivery-options { flex-direction: column; gap: 10px; }
             .bonus-balance-info { margin-left: 0; }
             .bonus-warning { margin-left: 0; }
+            .bonus-auth-warning { margin-left: 0; }
             .cart-page-content { padding: 15px; }
             .cart-page-item { padding: 12px; }
             .bottom-nav {
@@ -2277,6 +2314,10 @@
                         <i class="fas fa-wallet"></i> Баланс: <span id="bonusBalanceDisplay">0</span> ахмедиков
                     </div>
                     
+                    <div class="bonus-auth-warning" id="bonusAuthWarning" style="display: none;">
+                        <i class="fas fa-exclamation-triangle"></i> Авторизуйтесь, чтобы пользоваться бонусной картой
+                    </div>
+                    
                     <div class="bonus-warning" id="bonusWarning" style="display: none;">
                         <i class="fas fa-exclamation-circle"></i> Бонусную карту можно использовать только в заказах от 500 рублей
                     </div>
@@ -2326,7 +2367,7 @@
             onAuthStateChanged 
         } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js';
 
-        // Конфигурация Firebase (ЗАМЕНИТЕ НА СВОИ ДАННЫЕ!)
+        // Конфигурация Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyB-2Gn6SGCtemYudtX6DZ9XjNs_ADgeOvo",
             authDomain: "uahmeda-ed56a.firebaseapp.com",
@@ -2341,28 +2382,25 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         
-        // Провайдеры
+        // Провайдер Google
         const googleProvider = new GoogleAuthProvider();
-
-        // Состояние авторизации
-        let currentUser = null;
 
         // Функции входа
         window.loginWithGoogle = async () => {
             try {
                 const result = await signInWithPopup(auth, googleProvider);
-                showNotification('Успешный вход!', `Добро пожаловать, ${result.user.displayName}`);
-                closeMorePanel();
+                window.showNotification('Успешный вход!', `Добро пожаловать, ${result.user.displayName}`);
+                window.closeMorePanel();
             } catch (error) {
                 console.error('Ошибка входа:', error);
-                showNotification('Ошибка входа', error.message, 'error');
+                window.showNotification('Ошибка входа', error.message, 'error');
             }
         };
 
         window.logout = async () => {
             try {
                 await signOut(auth);
-                showNotification('Выход', 'Вы вышли из аккаунта');
+                window.showNotification('Выход', 'Вы вышли из аккаунта');
             } catch (error) {
                 console.error('Ошибка выхода:', error);
             }
@@ -2370,28 +2408,60 @@
 
         // Слушаем изменения статуса
         onAuthStateChanged(auth, (user) => {
+            // Сохраняем пользователя в глобальную переменную window
+            window.currentUser = user;
+            
             if (user) {
-                currentUser = user;
-                updateAuthUI(true);
+                // Сохраняем userId как google_ + uid для уникальности
+                const googleUserId = 'google_' + user.uid;
+                localStorage.setItem('ahmedUserId', googleUserId);
+                window.userId = googleUserId;
+                
+                // Загружаем данные пользователя
+                window.loadUserDataFromStorage(googleUserId);
+                
+                window.updateAuthUI(true);
                 console.log('Пользователь вошел:', user.email);
             } else {
-                currentUser = null;
-                updateAuthUI(false);
+                // Если нет пользователя, создаем гостевой userId
+                const guestUserId = localStorage.getItem('ahmedGuestId');
+                if (!guestUserId) {
+                    const newGuestId = 'guest_' + Math.random().toString(36).substr(2, 9);
+                    localStorage.setItem('ahmedGuestId', newGuestId);
+                    localStorage.setItem('ahmedUserId', newGuestId);
+                    window.userId = newGuestId;
+                } else {
+                    localStorage.setItem('ahmedUserId', guestUserId);
+                    window.userId = guestUserId;
+                }
+                
+                // Загружаем гостевые данные
+                window.loadUserDataFromStorage(window.userId);
+                
+                window.updateAuthUI(false);
+            }
+            
+            // Обновляем состояние бонусной карты в интерфейсе
+            if (typeof window.updateBonusCardState === 'function') {
+                window.updateBonusCardState();
+            }
+            if (typeof window.updateBonusDisplay === 'function') {
+                window.updateBonusDisplay();
             }
         });
 
         // Обновление интерфейса авторизации
-        function updateAuthUI(isLoggedIn) {
+        window.updateAuthUI = function(isLoggedIn) {
             const authContainer = document.getElementById('authContainer');
             if (!authContainer) return;
 
-            if (isLoggedIn && currentUser) {
+            if (isLoggedIn && window.currentUser) {
                 authContainer.innerHTML = `
                     <div class="user-profile">
-                        <img src="${currentUser.photoURL || 'https://www.gravatar.com/avatar/?d=mp'}" 
+                        <img src="${window.currentUser.photoURL || 'https://www.gravatar.com/avatar/?d=mp'}" 
                              class="user-avatar">
-                        <div class="user-name">${currentUser.displayName || 'Пользователь'}</div>
-                        <div class="user-email">${currentUser.email}</div>
+                        <div class="user-name">${window.currentUser.displayName || 'Пользователь'}</div>
+                        <div class="user-email">${window.currentUser.email}</div>
                         <button onclick="logout()" class="submit-btn" style="margin-top: 20px;">
                             <i class="fas fa-sign-out-alt"></i> Выйти
                         </button>
@@ -2420,10 +2490,60 @@
                     document.querySelector('#moreAuthBtn i').className = 'fas fa-sign-in-alt';
                 }
             }
-        }
+        };
 
-        // Обновляем функцию уведомлений для ошибок
-        function showNotification(title, message, type = 'success') {
+        // Функция загрузки данных пользователя
+        window.loadUserDataFromStorage = function(uid) {
+            // Загружаем бонусную карту
+            const savedBonusCard = localStorage.getItem('ahmedBonusCard_' + uid);
+            if (savedBonusCard) {
+                window.bonusCard = JSON.parse(savedBonusCard);
+            } else {
+                window.bonusCard = null;
+            }
+            
+            // Загружаем избранное
+            const savedFavorites = localStorage.getItem('ahmedFavorites_' + uid);
+            if (savedFavorites) {
+                window.favorites = JSON.parse(savedFavorites);
+                if (typeof window.updateFavoriteButtons === 'function') {
+                    window.updateFavoriteButtons();
+                }
+            } else {
+                window.favorites = [];
+            }
+            
+            // Загружаем заказы
+            const savedOrders = localStorage.getItem('ahmedOrders_' + uid);
+            if (savedOrders) {
+                window.orders = JSON.parse(savedOrders);
+            } else {
+                // Если есть глобальные заказы, фильтруем по userId
+                const allOrders = JSON.parse(localStorage.getItem('ahmedOrders') || '[]');
+                window.orders = allOrders.filter(o => o.userId === uid);
+            }
+            
+            // Загружаем номер заказа
+            const savedNum = localStorage.getItem('ahmedOrderNumber');
+            if (savedNum) window.orderNumber = parseInt(savedNum);
+            
+            // Обновляем интерфейс
+            if (typeof window.updateBonusDisplay === 'function') {
+                window.updateBonusDisplay();
+            }
+            if (typeof window.renderFavorites === 'function') {
+                window.renderFavorites();
+            }
+            if (typeof window.renderOrders === 'function') {
+                window.renderOrders();
+            }
+            if (typeof window.updateCart === 'function') {
+                window.updateCart();
+            }
+        };
+
+        // Функция уведомлений
+        window.showNotification = function(title, message, type = 'success') {
             const notificationTitle = document.getElementById('notificationTitle');
             const notificationMessage = document.getElementById('notificationMessage');
             const notificationIcon = document.getElementById('notificationIcon');
@@ -2440,19 +2560,19 @@
             
             cartNotification.classList.add('show');
             setTimeout(() => cartNotification.classList.remove('show'), 2000);
-        }
+        };
     </script>
 
     <script>
-        // ========== ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ==========
-        let currentPage = 'home';
-        let cart = [];
-        let orders = [];
-        let orderNumber = 1;
-        let userId = localStorage.getItem('ahmedUserId') || 'user_' + Math.random().toString(36).substr(2, 9);
-        localStorage.setItem('ahmedUserId', userId);
-        let bonusCard = null;
-        let favorites = [];
+        // ========== ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ (делаем их доступными через window) ==========
+        window.currentPage = 'home';
+        window.cart = [];
+        window.orders = [];
+        window.orderNumber = 1;
+        window.userId = localStorage.getItem('ahmedUserId') || 'guest_' + Math.random().toString(36).substr(2, 9);
+        localStorage.setItem('ahmedUserId', window.userId);
+        window.bonusCard = null;
+        window.favorites = [];
 
         // ========== DOM ЭЛЕМЕНТЫ ==========
         const loadingScreen = document.getElementById('loadingScreen');
@@ -2504,6 +2624,7 @@
         const useBonusCardInOrder = document.getElementById('useBonusCardInOrder');
         const bonusBalanceDisplay = document.getElementById('bonusBalanceDisplay');
         const bonusBalanceInfo = document.getElementById('bonusBalanceInfo');
+        const bonusAuthWarning = document.getElementById('bonusAuthWarning');
         const bonusWarning = document.getElementById('bonusWarning');
         const bonusEarnedInfo = document.getElementById('bonusEarnedInfo');
         const bonusEarned = document.getElementById('bonusEarned');
@@ -2563,6 +2684,35 @@
                 { id: 21, name: "Зелёный чай", description: "Освежающий зеленый чай с жасмином", price: 90, image: "https://images.unsplash.com/photo-1561047029-3000c68339ca?w=600&h=400&fit=crop" } 
             ]
         };
+
+        // Загружаем данные при старте
+        loadUserData();
+
+        function loadUserData() {
+            // Загружаем бонусную карту
+            const savedBonusCard = localStorage.getItem('ahmedBonusCard_' + window.userId);
+            if (savedBonusCard) window.bonusCard = JSON.parse(savedBonusCard);
+            
+            // Загружаем избранное
+            const savedFavorites = localStorage.getItem('ahmedFavorites_' + window.userId);
+            if (savedFavorites) {
+                window.favorites = JSON.parse(savedFavorites);
+            }
+            
+            // Загружаем заказы
+            const savedOrders = localStorage.getItem('ahmedOrders_' + window.userId);
+            if (savedOrders) {
+                window.orders = JSON.parse(savedOrders);
+            } else {
+                // Если есть глобальные заказы, фильтруем по userId
+                const allOrders = JSON.parse(localStorage.getItem('ahmedOrders') || '[]');
+                window.orders = allOrders.filter(o => o.userId === window.userId);
+            }
+            
+            // Загружаем номер заказа
+            const savedNum = localStorage.getItem('ahmedOrderNumber');
+            if (savedNum) window.orderNumber = parseInt(savedNum);
+        }
 
         // ========== ФУНКЦИЯ ДЛЯ ПАДЕНИЯ АХМЕДИКОВ ==========
         function createFallingAhmediks(count = 20) {
@@ -2649,7 +2799,7 @@
         }
 
         // ========== ФУНКЦИИ ДЛЯ ИЗБРАННОГО ==========
-        function toggleFavorite(itemId) {
+        window.toggleFavorite = function(itemId) {
             let item = null;
             for (const cat in menuData) {
                 const found = menuData[cat].find(i => i.id === itemId);
@@ -2660,27 +2810,27 @@
             }
             if (!item) return;
             
-            const existingIndex = favorites.findIndex(f => f.id === itemId);
+            const existingIndex = window.favorites.findIndex(f => f.id === itemId);
             
             if (existingIndex === -1) {
-                favorites.push({ ...item });
+                window.favorites.push({ ...item });
                 showNotification('Добавлено в избранное', item.name, true);
             } else {
-                favorites.splice(existingIndex, 1);
+                window.favorites.splice(existingIndex, 1);
                 showNotification('Удалено из избранного', item.name, true);
             }
             
-            updateFavoriteButtons();
+            window.updateFavoriteButtons();
             saveFavoritesToStorage();
             if (moreFavoritesPanel.classList.contains('active')) {
-                renderFavorites();
+                window.renderFavorites();
             }
-        }
+        };
 
-        function updateFavoriteButtons() {
+        window.updateFavoriteButtons = function() {
             document.querySelectorAll('.favorite-btn').forEach(btn => {
                 const itemId = parseInt(btn.dataset.id);
-                if (favorites.some(f => f.id === itemId)) {
+                if (window.favorites.some(f => f.id === itemId)) {
                     btn.classList.add('active');
                     btn.innerHTML = '<i class="fas fa-heart"></i>';
                 } else {
@@ -2688,12 +2838,12 @@
                     btn.innerHTML = '<i class="far fa-heart"></i>';
                 }
             });
-        }
+        };
 
-        function renderFavorites() {
+        window.renderFavorites = function() {
             if (!favoritesContainer) return;
             
-            if (favorites.length === 0) {
+            if (window.favorites.length === 0) {
                 favoritesContainer.innerHTML = `
                     <div class="empty-favorites">
                         <i class="far fa-heart"></i>
@@ -2707,7 +2857,7 @@
             favoritesContainer.innerHTML = '<div class="favorites-grid"></div>';
             const grid = favoritesContainer.querySelector('.favorites-grid');
             
-            favorites.forEach(item => {
+            window.favorites.forEach(item => {
                 const div = document.createElement('div');
                 div.className = 'favorites-item';
                 div.innerHTML = `
@@ -2739,20 +2889,20 @@
             grid.querySelectorAll('.remove-favorite').forEach(btn => {
                 btn.addEventListener('click', (e) => {
                     e.stopPropagation();
-                    toggleFavorite(parseInt(btn.dataset.id));
+                    window.toggleFavorite(parseInt(btn.dataset.id));
                 });
             });
-        }
+        };
 
         function saveFavoritesToStorage() {
-            localStorage.setItem('ahmedFavorites_' + userId, JSON.stringify(favorites));
+            localStorage.setItem('ahmedFavorites_' + window.userId, JSON.stringify(window.favorites));
         }
 
         function loadFavoritesFromStorage() {
-            const saved = localStorage.getItem('ahmedFavorites_' + userId);
+            const saved = localStorage.getItem('ahmedFavorites_' + window.userId);
             if (saved) {
-                favorites = JSON.parse(saved);
-                updateFavoriteButtons();
+                window.favorites = JSON.parse(saved);
+                window.updateFavoriteButtons();
             }
         }
 
@@ -2872,7 +3022,7 @@
                 const btn = e.target.closest('.favorite-btn');
                 e.preventDefault();
                 e.stopPropagation();
-                toggleFavorite(parseInt(btn.dataset.id));
+                window.toggleFavorite(parseInt(btn.dataset.id));
             }
         });
 
@@ -2903,7 +3053,7 @@
 
         // ========== УПРАВЛЕНИЕ СТРАНИЦАМИ ==========
         function switchPage(pageId) {
-            currentPage = pageId;
+            window.currentPage = pageId;
             pages.forEach(p => p.classList.remove('active'));
             document.getElementById(`${pageId}-page`).classList.add('active');
             
@@ -2918,7 +3068,7 @@
             if (pageId === 'cart') renderCartPage();
             if (pageId === 'menu') {
                 resetSearch();
-                updateFavoriteButtons();
+                window.updateFavoriteButtons();
             }
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
@@ -2935,18 +3085,18 @@
         });
 
         // ========== УПРАВЛЕНИЕ ОКНОМ "ЕЩЁ" ==========
-        function openMorePanel() {
+        window.openMorePanel = function() {
             moreOverlay.classList.add('active');
             morePanel.classList.add('active');
             document.body.style.overflow = 'hidden';
             showMoreMainMenu();
-        }
+        };
         
-        function closeMorePanel() {
+        window.closeMorePanel = function() {
             moreOverlay.classList.remove('active');
             morePanel.classList.remove('active');
             document.body.style.overflow = 'auto';
-        }
+        };
         
         function showMoreMainMenu() {
             moreMainMenu.classList.remove('hidden');
@@ -2973,7 +3123,7 @@
             moreBackBtn.classList.add('visible');
             morePanelTitle.textContent = 'Бонусная карта';
             loadBonusCardFromStorage();
-            updateBonusDisplay();
+            window.updateBonusDisplay();
         }
         
         function showOrdersInMore() {
@@ -2982,7 +3132,7 @@
             moreBackBtn.classList.add('visible');
             morePanelTitle.textContent = 'Недавние заказы';
             updateOrderStatuses();
-            renderOrders();
+            window.renderOrders();
         }
         
         function showFavoritesInMore() {
@@ -2990,7 +3140,7 @@
             moreFavoritesPanel.classList.add('active');
             moreBackBtn.classList.add('visible');
             morePanelTitle.textContent = 'Избранное';
-            renderFavorites();
+            window.renderFavorites();
         }
         
         function showAnnouncementInMore() {
@@ -3007,8 +3157,8 @@
             morePanelTitle.textContent = 'Обратная связь';
         }
 
-        closeMore.addEventListener('click', closeMorePanel);
-        moreOverlay.addEventListener('click', closeMorePanel);
+        closeMore.addEventListener('click', window.closeMorePanel);
+        moreOverlay.addEventListener('click', window.closeMorePanel);
         moreBackBtn.addEventListener('click', showMoreMainMenu);
         moreAuthBtn.addEventListener('click', showAuthPanel);
         moreBonusBtn.addEventListener('click', showBonusInMore);
@@ -3018,32 +3168,93 @@
         moreFeedbackBtn.addEventListener('click', showFeedbackInMore);
 
         // ========== БОНУСНАЯ КАРТА ==========
-        function saveBonusCardToStorage() { if (bonusCard) localStorage.setItem('ahmedBonusCard_' + userId, JSON.stringify(bonusCard)); else localStorage.removeItem('ahmedBonusCard_' + userId); }
+        function saveBonusCardToStorage() { 
+            if (window.bonusCard) {
+                localStorage.setItem('ahmedBonusCard_' + window.userId, JSON.stringify(window.bonusCard));
+            } else {
+                localStorage.removeItem('ahmedBonusCard_' + window.userId);
+            }
+        }
         
-        function loadBonusCardFromStorage() { const saved = localStorage.getItem('ahmedBonusCard_' + userId); if (saved) bonusCard = JSON.parse(saved); }
+        function loadBonusCardFromStorage() { 
+            const saved = localStorage.getItem('ahmedBonusCard_' + window.userId); 
+            if (saved) {
+                window.bonusCard = JSON.parse(saved);
+            }
+        }
         
         function addBonusPoints(points) { 
-            if (!bonusCard) return false; 
-            bonusCard.balance += points; 
+            if (!window.bonusCard) return false; 
+            window.bonusCard.balance += points; 
             saveBonusCardToStorage(); 
-            updateBonusDisplay(); 
+            window.updateBonusDisplay(); 
             createFallingAhmediks(15);
             return true; 
         }
         
         function deductBonusPoints(points) { 
-            if (!bonusCard || bonusCard.balance < points) return false; 
-            bonusCard.balance -= points; 
-            if (bonusCard.firstUse) bonusCard.firstUse = false; 
+            if (!window.bonusCard || window.bonusCard.balance < points) return false; 
+            window.bonusCard.balance -= points; 
+            if (window.bonusCard.firstUse) window.bonusCard.firstUse = false; 
             saveBonusCardToStorage(); 
-            updateBonusDisplay(); 
+            window.updateBonusDisplay(); 
             createFallingAhmediks(10);
             return true; 
         }
 
-        function updateBonusDisplay() {
+        window.updateBonusCardState = function() {
+            if (!bonusCardButton) return;
+            
+            if (!window.currentUser) {
+                bonusCardButton.classList.add('disabled');
+                bonusCardButton.style.pointerEvents = 'none';
+                bonusCardButton.style.opacity = '0.5';
+                if (bonusBalanceInfo) bonusBalanceInfo.style.display = 'none';
+                if (bonusAuthWarning) bonusAuthWarning.style.display = 'block';
+                if (bonusWarning) bonusWarning.style.display = 'none';
+            } else {
+                bonusCardButton.classList.remove('disabled');
+                bonusCardButton.style.pointerEvents = 'auto';
+                bonusCardButton.style.opacity = '1';
+                if (bonusAuthWarning) bonusAuthWarning.style.display = 'none';
+                
+                // Если есть карта, показываем баланс
+                if (window.bonusCard) {
+                    if (bonusBalanceDisplay) bonusBalanceDisplay.textContent = window.bonusCard.balance;
+                    if (bonusBalanceInfo) bonusBalanceInfo.style.display = 'flex';
+                    
+                    const total = window.cart.reduce((s,i) => s + i.price * i.quantity, 0);
+                    if (total < 500) { 
+                        if (bonusWarning) bonusWarning.style.display = 'block';
+                    } else { 
+                        if (bonusWarning) bonusWarning.style.display = 'none';
+                    }
+                } else {
+                    if (bonusBalanceInfo) bonusBalanceInfo.style.display = 'none';
+                    if (bonusWarning) bonusWarning.style.display = 'none';
+                }
+            }
+        };
+
+        window.updateBonusDisplay = function() {
             if (!bonusBalanceContainer) return;
-            if (bonusCard) {
+            
+            // Проверяем авторизацию
+            if (!window.currentUser) {
+                bonusBalanceContainer.innerHTML = `
+                    <div class="bonus-auth-required">
+                        <i class="fas fa-lock"></i>
+                        <p>Войдите в аккаунт, чтобы использовать бонусную карту</p>
+                        <button onclick="openMorePanel(); showAuthPanel();" class="submit-btn" style="width: auto; display: inline-block; padding: 12px 30px;">Войти</button>
+                    </div>
+                `;
+                bonusForm.classList.add('hidden');
+                if (bonusBalanceInfo) bonusBalanceInfo.style.display = 'none';
+                window.updateBonusCardState();
+                return;
+            }
+            
+            if (window.bonusCard) {
                 bonusBalanceContainer.innerHTML = '';
                 const positions = [ { top: '10%', left: '5%' }, { top: '5%', right: '10%' }, { bottom: '15%', left: '8%' }, { bottom: '5%', right: '15%' }];
                 positions.forEach(pos => {
@@ -3055,39 +3266,68 @@
                 });
                 const balanceDiv = document.createElement('div');
                 balanceDiv.className = 'bonus-balance';
-                balanceDiv.innerHTML = `<div class="bonus-card-number">Номер карты: ${bonusCard.cardNumber}</div><h3>Ваш баланс</h3><div class="bonus-balance-value"><span id="bonusBalanceValue">${bonusCard.balance}</span><span class="bonus-currency">ахмедиков</span></div>`;
+                balanceDiv.innerHTML = `<div class="bonus-card-number">Номер карты: ${window.bonusCard.cardNumber}</div><h3>Ваш баланс</h3><div class="bonus-balance-value"><span id="bonusBalanceValue">${window.bonusCard.balance}</span><span class="bonus-currency">ахмедиков</span></div>`;
                 bonusBalanceContainer.appendChild(balanceDiv);
-                bonusBalanceDisplay.textContent = bonusCard.balance;
-                bonusBalanceInfo.style.display = 'flex';
+                if (bonusBalanceDisplay) bonusBalanceDisplay.textContent = window.bonusCard.balance;
+                if (bonusBalanceInfo) bonusBalanceInfo.style.display = 'flex';
                 bonusForm.classList.add('hidden');
             } else {
                 bonusBalanceContainer.innerHTML = '<p style="text-align:center; padding:20px;">У вас нет активной карты. Заполните форму ниже, чтобы активировать.</p>';
                 bonusForm.classList.remove('hidden');
-                bonusBalanceInfo.style.display = 'none';
+                if (bonusBalanceInfo) bonusBalanceInfo.style.display = 'none';
             }
-        }
+            
+            // Обновляем состояние кнопки в оформлении заказа
+            window.updateBonusCardState();
+        };
 
         activateBonusForm?.addEventListener('submit', function(e) {
             e.preventDefault();
+            
+            if (!window.currentUser) {
+                alert('Для активации бонусной карты необходимо войти в аккаунт');
+                openMorePanel();
+                showAuthPanel();
+                return;
+            }
+            
             const fullName = document.getElementById('bonusFullName').value;
             const email = document.getElementById('bonusEmail').value;
             const cardNumber = document.getElementById('bonusCardNumber').value;
             if (cardNumber.length !== 8) { alert('Номер карты должен содержать ровно 8 цифр'); return; }
+            
+            // Сохраняем карты в общем хранилище с привязкой к userId
             const savedBonusCards = JSON.parse(localStorage.getItem('ahmedBonusCards') || '[]');
             const existingCard = savedBonusCards.find(c => c.cardNumber === cardNumber);
+            
             if (existingCard) {
-                bonusCard = existingCard;
-                alert(`Карта ${cardNumber} уже активирована. Баланс: ${bonusCard.balance} ахмедиков`);
-                createFallingAhmediks(8);
+                // Если карта уже существует, проверяем, принадлежит ли она текущему пользователю
+                if (existingCard.userId === window.userId) {
+                    window.bonusCard = existingCard;
+                    alert(`Карта ${cardNumber} загружена. Баланс: ${window.bonusCard.balance} ахмедиков`);
+                } else {
+                    alert('Эта карта уже привязана к другому аккаунту');
+                    return;
+                }
             } else {
-                bonusCard = { id: 'bonus_' + Date.now(), fullName, email, cardNumber, balance: 0, firstUse: true, createdAt: new Date().getTime(), userId: userId };
-                savedBonusCards.push(bonusCard);
+                window.bonusCard = { 
+                    id: 'bonus_' + Date.now(), 
+                    fullName, 
+                    email, 
+                    cardNumber, 
+                    balance: 0, 
+                    firstUse: true, 
+                    createdAt: new Date().getTime(), 
+                    userId: window.userId 
+                };
+                savedBonusCards.push(window.bonusCard);
                 localStorage.setItem('ahmedBonusCards', JSON.stringify(savedBonusCards));
                 alert('Бонусная карта успешно активирована!');
                 createFallingAhmediks(12);
             }
+            
             saveBonusCardToStorage();
-            updateBonusDisplay();
+            window.updateBonusDisplay();
         });
 
         bonusCardNumberInput?.addEventListener('input', function() { this.value = this.value.replace(/\D/g, '').slice(0, 8); });
@@ -3105,22 +3345,22 @@
             let item = null;
             for (const cat in menuData) { const found = menuData[cat].find(i => i.id === itemId); if (found) { item = found; break; } }
             if (!item) return;
-            const existing = cart.find(i => i.id === itemId);
-            if (existing) existing.quantity += 1; else cart.push({ ...item, quantity: 1 });
+            const existing = window.cart.find(i => i.id === itemId);
+            if (existing) existing.quantity += 1; else window.cart.push({ ...item, quantity: 1 });
             updateCart();
             showNotification('Товар добавлен в корзину', item.name, false);
         }
 
         // Функция изменения количества товара в корзине
         function updateCartItemQuantity(itemId, change) {
-            const itemIndex = cart.findIndex(i => i.id === itemId);
+            const itemIndex = window.cart.findIndex(i => i.id === itemId);
             if (itemIndex === -1) return;
             
-            const item = cart[itemIndex];
+            const item = window.cart[itemIndex];
             const newQuantity = item.quantity + change;
             
             if (newQuantity <= 0) {
-                cart.splice(itemIndex, 1);
+                window.cart.splice(itemIndex, 1);
             } else {
                 item.quantity = newQuantity;
             }
@@ -3144,15 +3384,16 @@
         });
 
         function updateCart() {
-            const totalItems = cart.reduce((s, i) => s + i.quantity, 0);
+            const totalItems = window.cart.reduce((s, i) => s + i.quantity, 0);
             navCartCount.textContent = totalItems;
             renderCartPage();
             saveCartToStorage();
+            window.updateBonusCardState();
         }
 
         function renderCartPage() {
             if (!cartPageItems) return;
-            if (cart.length === 0) {
+            if (window.cart.length === 0) {
                 cartPageItems.innerHTML = '<p class="empty-cart-message">Ваша корзина пуста</p>';
                 cartPageTotal.textContent = '0 ₽';
                 cartPageOrderBtn.disabled = true;
@@ -3161,7 +3402,7 @@
             
             cartPageItems.innerHTML = '';
             
-            cart.forEach(item => {
+            window.cart.forEach(item => {
                 const div = document.createElement('div');
                 div.className = 'cart-page-item';
                 div.innerHTML = `
@@ -3181,78 +3422,143 @@
                 cartPageItems.appendChild(div);
             });
             
-            const total = cart.reduce((s, i) => s + i.price * i.quantity, 0);
+            const total = window.cart.reduce((s, i) => s + i.price * i.quantity, 0);
             cartPageTotal.textContent = `${total} ₽`;
             cartPageOrderBtn.disabled = false;
         }
 
-        function saveCartToStorage() { localStorage.setItem('ahmedCart', JSON.stringify(cart)); }
+        function saveCartToStorage() { localStorage.setItem('ahmedCart', JSON.stringify(window.cart)); }
         
-        function loadCartFromStorage() { const saved = localStorage.getItem('ahmedCart'); if (saved) { cart = JSON.parse(saved); updateCart(); } }
+        function loadCartFromStorage() { const saved = localStorage.getItem('ahmedCart'); if (saved) { window.cart = JSON.parse(saved); updateCart(); } }
 
         // ========== ЗАКАЗЫ ==========
-        function getNextOrderNumber() { return Math.max(orderNumber, (orders.filter(o => o.userId === userId).reduce((max, o) => Math.max(max, parseInt(o.id.replace('AHM-', ''))), 0)) + 1); }
+        function getNextOrderNumber() { return Math.max(window.orderNumber, (window.orders.filter(o => o.userId === window.userId).reduce((max, o) => Math.max(max, parseInt(o.id.replace('AHM-', ''))), 0)) + 1); }
         
         function createOrder(custData, cartItems, delType, addr, useBonus) {
+            // Проверяем авторизацию для использования бонусной карты
+            if (useBonus && !window.currentUser) {
+                alert('Для использования бонусной карты необходимо войти в аккаунт');
+                return null;
+            }
+            
             let total = cartItems.reduce((s, i) => s + i.price * i.quantity, 0);
             let bonusEarned = 0, bonusSpent = 0, bonusUsed = false;
-            if (useBonus && bonusCard && total >= 500) {
+            
+            if (useBonus && window.bonusCard && total >= 500) {
                 bonusUsed = true;
                 total = Math.max(0, total - 1);
                 bonusEarned = Math.floor(Math.random() * 3) + 2;
                 addBonusPoints(bonusEarned);
-                if (!bonusCard.firstUse && bonusCard.balance > 0) {
-                    const maxDeduct = Math.min(bonusCard.balance, 5);
+                if (!window.bonusCard.firstUse && window.bonusCard.balance > 0) {
+                    const maxDeduct = Math.min(window.bonusCard.balance, 5);
                     if (maxDeduct > 0) {
                         bonusSpent = Math.floor(Math.random() * maxDeduct) + 1;
-                        bonusSpent = Math.min(bonusSpent, bonusCard.balance);
+                        bonusSpent = Math.min(bonusSpent, window.bonusCard.balance);
                         deductBonusPoints(bonusSpent);
                     }
                 }
-                if (bonusCard.firstUse) { bonusCard.firstUse = false; saveBonusCardToStorage(); }
+                if (window.bonusCard.firstUse) { window.bonusCard.firstUse = false; saveBonusCardToStorage(); }
             }
+            
             const newOrderNumber = getNextOrderNumber();
             const order = {
-                id: `AHM-${newOrderNumber.toString().padStart(3, '0')}`, userId, date: new Date().toLocaleDateString('ru-RU'),
-                customerName: custData.name, customerEmail: custData.email,
+                id: `AHM-${newOrderNumber.toString().padStart(3, '0')}`, 
+                userId: window.userId, 
+                date: new Date().toLocaleDateString('ru-RU'),
+                customerName: custData.name, 
+                customerEmail: custData.email,
                 items: cartItems.map(i => ({ name: i.name, price: i.price, quantity: i.quantity })),
-                total, deliveryType: delType, address: addr, status: 'ordered', statusChanged: new Date().getTime(),
-                rating: null, bonusUsed, bonusEarned, bonusSpent, canBeReceived: delType === 'pickup'
+                total, 
+                deliveryType: delType, 
+                address: addr, 
+                status: 'ordered', 
+                statusChanged: new Date().getTime(),
+                rating: null, 
+                bonusUsed, 
+                bonusEarned, 
+                bonusSpent, 
+                canBeReceived: delType === 'pickup'
             };
-            orderNumber = newOrderNumber + 1;
-            orders.unshift(order);
-            saveOrdersToStorage();
-            renderOrders();
+            
+            window.orderNumber = newOrderNumber + 1;
+            window.orders.unshift(order);
+            
+            // Сохраняем заказы в отдельном хранилище по userId
+            localStorage.setItem('ahmedOrders_' + window.userId, JSON.stringify(window.orders));
+            
+            // Также сохраняем в общее хранилище для обратной совместимости
+            const allOrders = JSON.parse(localStorage.getItem('ahmedOrders') || '[]');
+            allOrders.unshift(order);
+            localStorage.setItem('ahmedOrders', JSON.stringify(allOrders));
+            localStorage.setItem('ahmedOrderNumber', window.orderNumber.toString());
+            
+            window.renderOrders();
             return order;
         }
         
-        function saveOrdersToStorage() { localStorage.setItem('ahmedOrders', JSON.stringify(orders)); localStorage.setItem('ahmedOrderNumber', orderNumber.toString()); }
+        function saveOrdersToStorage() { 
+            localStorage.setItem('ahmedOrders_' + window.userId, JSON.stringify(window.orders));
+            
+            // Обновляем общее хранилище
+            const allOrders = JSON.parse(localStorage.getItem('ahmedOrders') || '[]');
+            // Удаляем старые заказы этого пользователя
+            const filteredOrders = allOrders.filter(o => o.userId !== window.userId);
+            // Добавляем новые
+            filteredOrders.push(...window.orders);
+            localStorage.setItem('ahmedOrders', JSON.stringify(filteredOrders));
+        }
         
         function loadOrdersFromStorage() { 
-            const savedOrders = localStorage.getItem('ahmedOrders');
+            const savedOrders = localStorage.getItem('ahmedOrders_' + window.userId);
             const savedNum = localStorage.getItem('ahmedOrderNumber');
-            if (savedOrders) { orders = JSON.parse(savedOrders); updateOrderStatuses(); renderOrders(); }
-            if (savedNum) orderNumber = parseInt(savedNum);
+            if (savedOrders) { 
+                window.orders = JSON.parse(savedOrders); 
+                updateOrderStatuses(); 
+                window.renderOrders(); 
+            }
+            if (savedNum) window.orderNumber = parseInt(savedNum);
         }
         
         function updateOrderStatuses() {
             const now = new Date().getTime();
             const five = 5 * 60 * 1000, ten = 10 * 60 * 1000, fifteen = 15 * 60 * 1000;
-            orders.forEach(o => {
+            let changed = false;
+            
+            window.orders.forEach(o => {
                 if (o.status === 'completed') return;
                 const timePassed = now - o.statusChanged;
-                if (o.status === 'ordered' && timePassed > five) { o.status = 'cooking'; o.statusChanged = now; }
-                else if (o.status === 'cooking' && timePassed > ten) { o.status = o.deliveryType === 'delivery' ? 'delivery' : 'ready'; o.statusChanged = now; }
-                else if (o.status === 'delivery' && timePassed > fifteen) { o.status = 'ready'; o.statusChanged = now; }
+                if (o.status === 'ordered' && timePassed > five) { 
+                    o.status = 'cooking'; 
+                    o.statusChanged = now;
+                    changed = true;
+                }
+                else if (o.status === 'cooking' && timePassed > ten) { 
+                    o.status = o.deliveryType === 'delivery' ? 'delivery' : 'ready'; 
+                    o.statusChanged = now;
+                    changed = true;
+                }
+                else if (o.status === 'delivery' && timePassed > fifteen) { 
+                    o.status = 'ready'; 
+                    o.statusChanged = now;
+                    changed = true;
+                }
             });
-            saveOrdersToStorage();
-            renderOrders();
+            
+            if (changed) {
+                saveOrdersToStorage();
+                window.renderOrders();
+            }
         }
         
-        function renderOrders() {
+        window.renderOrders = function() {
             if (!ordersContainer) return;
-            const userOrders = orders.filter(o => o.userId === userId);
-            if (userOrders.length === 0) { ordersContainer.innerHTML = '<p class="no-orders">У вас еще нет заказов</p>'; return; }
+            
+            const userOrders = window.orders.filter(o => o.userId === window.userId);
+            if (userOrders.length === 0) { 
+                ordersContainer.innerHTML = '<p class="no-orders" style="text-align:center; padding:20px;">У вас еще нет заказов</p>'; 
+                return; 
+            }
+            
             ordersContainer.innerHTML = '';
             userOrders.forEach(order => {
                 const card = document.createElement('div');
@@ -3266,7 +3572,7 @@
                 card.innerHTML = `<div class="order-header"><div><div class="order-number">Заказ ${order.id}</div><div class="order-date">${order.date}</div></div><div class="order-status status-${order.status}">${statusText}</div></div><div class="order-items">${itemsHtml}</div>${bonusHtml}<div class="order-footer"><div class="order-total">${order.total} ₽</div><div class="order-type">${order.deliveryType === 'delivery' ? 'Доставка' : 'Самовывоз'}</div></div>${qrHtml}${receivedBtnHtml}${deleteBtnHtml}`;
                 ordersContainer.appendChild(card);
             });
-        }
+        };
 
         // ========== ОЦЕНКА ЗАКАЗА ==========
         let selectedRating = 0;
@@ -3274,9 +3580,18 @@
         
         ratingStars.forEach(s => s.addEventListener('click', function() { selectedRating = parseInt(this.dataset.rating); selectedRatingInput.value = selectedRating; updateStarsDisplay(selectedRating); }));
         
-        function openRatingModal(orderId) { ratingOrderIdInput.value = orderId; selectedRating = 0; updateStarsDisplay(0); ratingModalOverlay.classList.add('active'); document.body.style.overflow = 'hidden'; }
+        function openRatingModal(orderId) { 
+            ratingOrderIdInput.value = orderId; 
+            selectedRating = 0; 
+            updateStarsDisplay(0); 
+            ratingModalOverlay.classList.add('active'); 
+            document.body.style.overflow = 'hidden'; 
+        }
         
-        function closeRatingModalFunc() { ratingModalOverlay.classList.remove('active'); document.body.style.overflow = 'auto'; }
+        function closeRatingModalFunc() { 
+            ratingModalOverlay.classList.remove('active'); 
+            document.body.style.overflow = 'auto'; 
+        }
         
         closeRatingModal.addEventListener('click', closeRatingModalFunc);
         ratingModalOverlay.addEventListener('click', (e) => { if (e.target === ratingModalOverlay) closeRatingModalFunc(); });
@@ -3284,14 +3599,21 @@
         submitRatingBtn.addEventListener('click', () => {
             const orderId = ratingOrderIdInput.value;
             if (selectedRating === 0) { alert('Пожалуйста, выберите оценку'); return; }
-            const idx = orders.findIndex(o => o.id === orderId);
-            if (idx !== -1) { orders[idx].status = 'completed'; orders[idx].rating = selectedRating; orders[idx].completedAt = new Date().getTime(); saveOrdersToStorage(); renderOrders(); alert(`Спасибо за оценку: ${selectedRating} звезд!`); }
+            const idx = window.orders.findIndex(o => o.id === orderId);
+            if (idx !== -1) { 
+                window.orders[idx].status = 'completed'; 
+                window.orders[idx].rating = selectedRating; 
+                window.orders[idx].completedAt = new Date().getTime(); 
+                saveOrdersToStorage(); 
+                window.renderOrders(); 
+                alert(`Спасибо за оценку: ${selectedRating} звезд!`); 
+            }
             closeRatingModalFunc();
         });
 
         // ========== ОФОРМЛЕНИЕ ЗАКАЗА ==========
         cartPageOrderBtn?.addEventListener('click', () => {
-            if (cart.length === 0) return;
+            if (window.cart.length === 0) return;
             orderModal.style.opacity = '1';
             orderModal.style.visibility = 'visible';
             document.body.style.overflow = 'hidden';
@@ -3305,32 +3627,27 @@
             useBonusCardInOrder.checked = false;
             bonusCardButton.classList.remove('active');
             
-            if (bonusCard) {
-                bonusBalanceDisplay.textContent = bonusCard.balance;
-                const total = cart.reduce((s,i) => s + i.price * i.quantity, 0);
-                if (total < 500) { 
-                    bonusWarning.style.display = 'block'; 
-                    bonusCardButton.classList.add('bonus-card-disabled'); 
-                } else { 
-                    bonusWarning.style.display = 'none'; 
-                    bonusCardButton.classList.remove('bonus-card-disabled'); 
-                }
-            } else { 
-                bonusCardButton.style.display = 'none'; 
-                bonusBalanceInfo.style.display = 'none'; 
-                bonusWarning.style.display = 'none'; 
-            }
+            // Обновляем состояние бонусной карты
+            window.updateBonusCardState();
+            
             bonusEarnedInfo.style.display = 'none'; 
             bonusSpentInfo.style.display = 'none';
         });
         
         bonusCardButton.addEventListener('click', function() {
-            if (!bonusCard) {
+            if (!window.currentUser) {
+                alert('Для использования бонусной карты необходимо войти в аккаунт');
+                openMorePanel();
+                showAuthPanel();
+                return;
+            }
+            
+            if (!window.bonusCard) {
                 alert('У вас нет активной бонусной карты. Активируйте её в разделе "Ещё"');
                 return;
             }
             
-            const total = cart.reduce((s,i) => s + i.price * i.quantity, 0);
+            const total = window.cart.reduce((s,i) => s + i.price * i.quantity, 0);
             if (total < 500) {
                 alert('Бонусную карту можно использовать только в заказах от 500 рублей');
                 return;
@@ -3350,14 +3667,28 @@
         
         orderForm.addEventListener('submit', (e) => {
             e.preventDefault();
+            
+            // Проверяем авторизацию при использовании бонусной карты
+            if (useBonusCardInOrder.checked && !window.currentUser) {
+                alert('Для использования бонусной карты необходимо войти в аккаунт');
+                return;
+            }
+            
             const name = document.getElementById('customerName').value;
             const email = document.getElementById('customerEmail').value;
             const delType = document.querySelector('input[name="deliveryType"]:checked').value;
             const addr = delType === 'delivery' ? document.getElementById('customerAddress').value : null;
             const useBonus = useBonusCardInOrder.checked;
-            const total = cart.reduce((s,i) => s + i.price * i.quantity, 0);
-            if (useBonus && total < 500) { alert('Бонусную карту можно использовать только в заказах от 500 рублей'); return; }
-            const newOrder = createOrder({ name, email }, cart, delType, addr, useBonus);
+            const total = window.cart.reduce((s,i) => s + i.price * i.quantity, 0);
+            
+            if (useBonus && total < 500) { 
+                alert('Бонусную карту можно использовать только в заказах от 500 рублей'); 
+                return; 
+            }
+            
+            const newOrder = createOrder({ name, email }, window.cart, delType, addr, useBonus);
+            if (!newOrder) return;
+            
             orderNumberElement.textContent = newOrder.id;
             if (newOrder.bonusUsed) {
                 if (newOrder.bonusEarned > 0) { bonusEarned.textContent = newOrder.bonusEarned; bonusEarnedInfo.style.display = 'block'; }
@@ -3365,10 +3696,18 @@
             }
             orderForm.style.display = 'none';
             orderSuccess.style.display = 'block';
+            
             setTimeout(() => {
-                cart = []; updateCart(); orderModal.style.opacity = '0'; orderModal.style.visibility = 'hidden'; document.body.style.overflow = 'auto';
+                window.cart = []; 
+                updateCart(); 
+                orderModal.style.opacity = '0'; 
+                orderModal.style.visibility = 'hidden'; 
+                document.body.style.overflow = 'auto';
                 switchPage('home');
-                setTimeout(() => { openMorePanel(); showOrdersInMore(); }, 300);
+                setTimeout(() => { 
+                    openMorePanel(); 
+                    showOrdersInMore(); 
+                }, 300);
             }, 2000);
         });
 
@@ -3384,7 +3723,7 @@
         loadOrdersFromStorage();
         loadBonusCardFromStorage();
         loadFavoritesFromStorage();
-        updateBonusDisplay();
+        window.updateBonusDisplay();
         setInterval(updateOrderStatuses, 60000);
         switchPage('home');
 
@@ -3395,10 +3734,10 @@
             }
             if (e.target.classList.contains('delete-order-btn')) {
                 if (confirm('Удалить заказ?')) {
-                    const idx = orders.findIndex(o => o.id === e.target.dataset.orderId);
-                    if (idx !== -1) orders.splice(idx, 1);
+                    const idx = window.orders.findIndex(o => o.id === e.target.dataset.orderId);
+                    if (idx !== -1) window.orders.splice(idx, 1);
                     saveOrdersToStorage();
-                    renderOrders();
+                    window.renderOrders();
                 }
             }
         });
